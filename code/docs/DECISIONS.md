@@ -24,3 +24,8 @@ This file records architecture decisions, assumptions, and rule clarifications a
 ## D-06: Step 1 Scaffolding and Acceptance Gates
 - **Decision:** Implement canonical step serialization (`code/ghost/steps.py`), row invariant validator (`code/ghost/validate.py`), full evaluation scorer (`code/evaluation/score.py`), and test suites (`tests/test_steps.py`, `tests/test_validate.py`).
 - **Rationale:** Locks step ordering and validation invariants upfront before any heuristic or extraction logic is built.
+
+## D-07: Baseline Safety-Net Implementation (Step 2)
+- **Decision:** Implement `code/main.py` to deterministically emit all 518 evaluation cases (`case_33` through `case_550`) matching the natural request order and valid `NOT_APPLICABLE` / `[]` schema.
+- **Rationale:** Establishes a verified, structurally compliant output artifact early as a submission safety net, with automated file validation stopping any malformed output.
+- **Guarded By:** `tests/test_baseline.py` and `ghost.validate.validate_file`.

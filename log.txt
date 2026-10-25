@@ -48,3 +48,44 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+## 2026-10-25T06:21:30+05:30 Part A Step 2: Minimal deterministic baseline main.py and output.csv
+
+User Prompt (verbatim, secrets redacted):
+Step 1 is accepted. Proceed with Part A, Build Order Step 2 only.
+
+Build a minimal, deterministic `code/main.py` that produces a structurally valid `output.csv` containing exactly one row for every one of the 518 evaluation requests.
+
+Requirements:
+1. Follow Part A of `planning/COMBINED_PLAN.md`, including Patch P1. Determine output ordering from the row order of `dataset/output.csv`, the organizer-provided template. Do not follow conflicting Part B instructions.
+2. Use the exact required header: `case_id,deletion_status,steps_json`.
+3. Ensure all 518 case IDs appear exactly once, with valid status values and valid JSON serialization.
+4. Run the existing output validator against the generated file and fix structural errors.
+5. Keep this explicitly labelled as a baseline safety-net implementation. Do not pretend that the deletion decisions or evidence citations are accurate yet.
+6. Do not start identity resolution, evidence adapters, ownership linking, state reconstruction, policy compilation, or intent classification. Those belong to later build stages.
+7. Add focused tests for the baseline's row count, case coverage, output schema, and deterministic behavior.
+8. Update `log.txt` using the actual runtime `tool=` and `model=` values. Review the entry after writing it.
+9. Commit the completed Step 2 with a descriptive commit message and report the actual test results, commit hash, files changed, and working-tree status.
+
+Stop after Step 2. Do not begin Step 3 until I explicitly authorize it. Do not modify `AGENTS.md` or the dataset files.
+
+Agent Response Summary:
+Implemented minimal deterministic baseline in code/main.py to generate a structurally compliant 518-row output.csv in root matching the natural request order per Patch P1. Extended code/ghost/validate.py with validate_file() to verify full-file schema, row counts, and per-row invariants. Created focused unit tests in tests/test_baseline.py covering row counts, case coverage, schema headers, validator checks, and byte-level determinism. All 24 tests in pytest passed cleanly. Documented Decision D-07, committed Step 2 artifacts, and stopped before Step 3.
+
+Actions:
+* edit_file: code/ghost/validate.py (added validate_file helper)
+* write_file: code/main.py (minimal deterministic baseline generator and CLI)
+* write_file: tests/test_baseline.py (schema, coverage, validator, and determinism tests)
+* edit_file: code/docs/DECISIONS.md (added D-07)
+* run_command: python code/main.py
+* run_command: pytest tests/test_steps.py tests/test_validate.py tests/test_baseline.py
+* write_file: log.txt (per-turn log entry)
+* run_command: git add . && git commit -m "..."
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
