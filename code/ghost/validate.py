@@ -21,16 +21,19 @@ def check_row(case_id: str, status: str, steps_json: str) -> list[str]:
         if s.get("step_no") != i: errs.append(f"{case_id}#{i}: step_no")
         if OP_PHASE_STATE.get(s.get("operation")) != (s.get("phase"), s.get("state")):
             errs.append(f"{case_id}#{i}: operation/phase/state mismatch")
-        key = (PHASE_RANK[s["phase"]], OPERATION_RANK[s["operation"]])
-        if key < last: errs.append(f"{case_id}#{i}: out of order")
-        last = key
-    phases = [s["phase"] for s in steps]
+        phase = s.get("phase")
+        op = s.get("operation")
+        if phase in PHASE_RANK and op in OPERATION_RANK:
+            key = (PHASE_RANK[phase], OPERATION_RANK[op])
+            if key < last: errs.append(f"{case_id}#{i}: out of order")
+            last = key
+    phases = [s.get("phase") for s in steps]
     if status == "COMPLETE":
         if set(phases) - {"VERIFICATION"}: errs.append(f"{case_id}: COMPLETE has non-verification steps")
-        if any(not s["evidence_id"] for s in steps): errs.append(f"{case_id}: COMPLETE verification needs evidence_id")
+        if any(not s.get("evidence_id") for s in steps): errs.append(f"{case_id}: COMPLETE verification needs evidence_id")
     if status == "INCOMPLETE":
         if "FINDING" not in phases: errs.append(f"{case_id}: INCOMPLETE without finding")
         for s in steps:
-            if s["phase"] == "FINDING" and not s["evidence_id"]: errs.append(f"{case_id}: finding without evidence")
-            if s["phase"] != "FINDING" and s["evidence_id"]: errs.append(f"{case_id}: future step must use ''")
+            if s.get("phase") == "FINDING" and not s.get("evidence_id"): errs.append(f"{case_id}: finding without evidence")
+            if s.get("phase") != "FINDING" and s.get("evidence_id"): errs.append(f"{case_id}: future step must use ''")
     return errs
