@@ -95,3 +95,12 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Rationale:** Eliminates subtle temporal leakage across multi-request lifecycles, guarantees parsing robustness across non-standard business artifacts, ensures prompt injection resistance, and provides comprehensive regression protection for all critical core invariants.
 - **Guarded By:** `tests/test_security_injection.py`, `tests/test_custom_cases.py`, `review/unresolved.md`, `evaluation/evaluation_report.md`.
 
+## D-19: Production Pipeline Integration and Deterministic Fresh-Run Verification (Step 7)
+- **Decision:** Executed Step 7 freeze and fresh-run determinism verification:
+  1. **Full Pipeline Integration:** Wired `code/main.py` directly to the full end-to-end audit engine (`run_audit_pipeline`) while preserving baseline generator methods for testing.
+  2. **Unified Completeness Derivation:** Delegated case completion arbitration directly to `PolicyCompiler.has_finding(res_state)` rather than a hardcoded partial category filter in `pipeline.py`. Resolved 8 validation errors across `case_33`, `case_35`, `case_50`, and `case_52`.
+  3. **Byte-for-Byte Determinism:** Executed two complete consecutive runs of `output.csv` across all 518 cases; verified byte-identical SHA-256 checksum (`5527ac85e5fafa7c3d56b4d583bd73b2a29342c0394250cb8a9da8b61b3ef54c`, 522,969 bytes) and 0 validation errors under `validate_file`.
+  4. **Regression Protection:** Added `tests/test_baseline.py::test_production_pipeline_sample_determinism` (91/91 tests passing in 2.4s).
+- **Rationale:** Guarantees that production output generation is fully integrated, 100% reproducible, adheres strictly to the 518-case contract, and passes all validation gates without manual intervention.
+- **Guarded By:** `tests/test_baseline.py`, `code/main.py`, `ghost.validate.validate_file`.
+

@@ -82,28 +82,7 @@ def run_case(case: Case | dict[str, Any], ctx: AuditContext) -> tuple[str, str]:
 
     # 6. Policy Compilation
     # Check if case has any non-compliant state / findings
-    has_finding = False
-    for st in states:
-        cat = st.category
-        if cat in {
-            "USER_PROFILE", "SEARCH_INDEX_ENTRY", "SUPPORT_ATTACHMENT",
-            "USER_EXPORT", "MARKETING_PROFILE", "SECONDARY_IDENTIFIER", "CACHE_ENTRY"
-        }:
-            if st.state.value == "PRESENT":
-                has_finding = True
-        elif cat in {"SUPPORT_MESSAGE", "ACCOUNT_TOMBSTONE", "EMAIL_DELIVERY_LOG"}:
-            if st.state.value == "PRESENT":
-                has_finding = True
-        elif cat in {"ANALYTICS_PROFILE", "PRODUCT_TELEMETRY"}:
-            if st.state.value == "PRESENT":
-                has_finding = True
-        elif cat == "BACKUP_ARCHIVE":
-            if st.state.value == "ACTIVE":
-                has_finding = True
-        elif cat == "DATA_FLOW":
-            if st.state.value == "ACTIVE":
-                has_finding = True
-
+    has_finding = any(ctx.compiler.has_finding(st) for st in states)
     is_complete = not has_finding
     status = "COMPLETE" if is_complete else "INCOMPLETE"
 

@@ -82,3 +82,20 @@ def test_root_output_csv_exists_and_valid():
     assert OUTPUT_PATH.exists(), f"Root output.csv missing at {OUTPUT_PATH}"
     errs = validate_file(OUTPUT_PATH, expected_count=518)
     assert errs == [], f"Root output.csv validation errors: {errs}"
+
+
+def test_production_pipeline_sample_determinism():
+    """Verify full audit pipeline execution is byte-for-byte deterministic across runs."""
+    from ghost.pipeline import AuditContext, run_case
+    from ghost.config import DATASET_DIR, SAMPLE_REQUESTS_PATH
+
+    ctx = AuditContext.load(DATASET_DIR)
+    with open(SAMPLE_REQUESTS_PATH, "r", encoding="utf-8") as f:
+        samples = list(csv.DictReader(f))[:5]
+
+    for req in samples:
+        st1, json1 = run_case(req, ctx)
+        st2, json2 = run_case(req, ctx)
+        assert st1 == st2, f"Status mismatch for {req['case_id']}"
+        assert json1 == json2, f"JSON step serialization mismatch for {req['case_id']}"
+

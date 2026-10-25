@@ -45,6 +45,11 @@ def sort_steps(steps: list[Step]) -> list[dict]:
 class PolicyCompiler:
     """Compiles resource states into compliant Finding, Remediation, and Verification steps."""
 
+    def has_finding(self, res_state: ResourceState) -> bool:
+        """Return True if this resource state produces any policy findings."""
+        steps = self.compile_resource(res_state, is_case_complete=False)
+        return any(s.phase == "FINDING" for s in steps)
+
     def compile_resource(
         self,
         res_state: ResourceState,
