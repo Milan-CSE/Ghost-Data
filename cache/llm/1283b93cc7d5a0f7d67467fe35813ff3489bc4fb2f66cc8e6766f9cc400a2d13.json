@@ -1,0 +1,26 @@
+{
+  "key": "1283b93cc7d5a0f7d67467fe35813ff3489bc4fb2f66cc8e6766f9cc400a2d13",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "marketing_platform",
+      "resource_id": "marketing_001",
+      "category": "MARKETING_PROFILE",
+      "state": "ACTIVE",
+      "user_id": "marketing_001",
+      "email": "sj.park@naver.com",
+      "phone": "+82 10-5837-9451",
+      "email_hash": null,
+      "visible_timestamp": "2026-09-15T23:40:00Z",
+      "confidence": 0.98,
+      "notes": "Timestamp derived from 'Last refreshed' field."
+    }
+  ],
+  "usage": {
+    "input_tokens": 1707,
+    "output_tokens": 168
+  },
+  "cost_usd": 0.00017843,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

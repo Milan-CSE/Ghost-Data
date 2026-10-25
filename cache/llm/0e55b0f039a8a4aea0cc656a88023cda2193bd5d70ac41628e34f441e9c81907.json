@@ -1,0 +1,17 @@
+{
+  "key": "0e55b0f039a8a4aea0cc656a88023cda2193bd5d70ac41628e34f441e9c81907",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly requests to have their account closed and their profile and personal details removed."
+  },
+  "usage": {
+    "input_tokens": 677,
+    "output_tokens": 55
+  },
+  "cost_usd": 6.728e-05,
+  "cached_at": "2026-10-25T02:54:25.489447+00:00"
+}

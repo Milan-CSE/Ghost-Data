@@ -1,0 +1,91 @@
+{
+  "key": "2c4f676bf82620ee545f0d3680af71bcf00c36ac13f7b518c167dbffa712fd52",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "analytics_7438",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": "darwish.omar@icloud.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": null,
+      "confidence": 0.98,
+      "notes": "User profile record extracted from header"
+    },
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "event_14:22",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "14:22",
+      "confidence": 0.95,
+      "notes": "Event timeline row 1"
+    },
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "event_14:20",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "14:20",
+      "confidence": 0.95,
+      "notes": "Event timeline row 2"
+    },
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "event_14:17",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "14:17",
+      "confidence": 0.95,
+      "notes": "Event timeline row 3"
+    },
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "event_14:16",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "14:16",
+      "confidence": 0.95,
+      "notes": "Event timeline row 4"
+    },
+    {
+      "system_id": "analytics_platform",
+      "resource_id": "event_14:12",
+      "category": "ANALYTICS_RECORD",
+      "state": "PRESENT",
+      "user_id": "user_20",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "14:12",
+      "confidence": 0.95,
+      "notes": "Event timeline row 5"
+    }
+  ],
+  "usage": {
+    "input_tokens": 1681,
+    "output_tokens": 775
+  },
+  "cost_usd": 0.00035857,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

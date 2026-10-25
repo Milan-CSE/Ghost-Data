@@ -1,0 +1,17 @@
+{
+  "key": "9da5049dd5c87fbcc4ce40b6180e9da4d5ff17b38c0c5e2982086da95cc786bf",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly states 'I\u2019m deleting my account', which constitutes an affirmative command for account erasure."
+  },
+  "usage": {
+    "input_tokens": 672,
+    "output_tokens": 59
+  },
+  "cost_usd": 6.81e-05,
+  "cached_at": "2026-10-25T02:54:27.629082+00:00"
+}

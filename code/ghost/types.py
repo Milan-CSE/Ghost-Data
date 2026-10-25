@@ -27,6 +27,23 @@ class Case:
 
 
 @dataclass(frozen=True)
+class Intent:
+    """Arbitrated deletion intent result."""
+    decision: str  # "DELETION" or "NOT_APPLICABLE"
+    tier: int      # 1 to 6
+    reason: str
+    confidence: float = 1.0
+
+    @property
+    def is_not_deletion(self) -> bool:
+        return self.decision == "NOT_APPLICABLE"
+
+    @property
+    def is_deletion(self) -> bool:
+        return self.decision == "DELETION"
+
+
+@dataclass(frozen=True)
 class Fact:
     """One normalized observation."""
     file_id: str

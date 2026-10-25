@@ -1,0 +1,17 @@
+{
+  "key": "7068d54ee871d1b73c36db423a1321a3a5ef697883b18bcfff76b81e11949b9c",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 0.95,
+    "reason": "The user explicitly requests the deletion of a specific data artifact ('delete that export file'), which constitutes an affirmative command for data erasure."
+  },
+  "usage": {
+    "input_tokens": 673,
+    "output_tokens": 65
+  },
+  "cost_usd": 6.997e-05,
+  "cached_at": "2026-10-25T02:54:31.446846+00:00"
+}

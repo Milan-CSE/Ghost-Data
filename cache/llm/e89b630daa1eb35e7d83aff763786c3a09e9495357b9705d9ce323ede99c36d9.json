@@ -1,0 +1,17 @@
+{
+  "key": "e89b630daa1eb35e7d83aff763786c3a09e9495357b9705d9ce323ede99c36d9",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly requests to 'remove any remaining copy of my profile', which constitutes an affirmative command for data erasure."
+  },
+  "usage": {
+    "input_tokens": 675,
+    "output_tokens": 61
+  },
+  "cost_usd": 6.892e-05,
+  "cached_at": "2026-10-25T02:54:28.850447+00:00"
+}

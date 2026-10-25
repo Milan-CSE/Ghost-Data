@@ -1,0 +1,17 @@
+{
+  "key": "d56859d361c8917883394dc4731ff8a26e84534e8397225de85377fd65b83806",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": false,
+    "category": "INFORMATIONAL",
+    "confidence": 0.95,
+    "reason": "The user states the account is already deleted and is now asking for verification and information regarding data retention policies, rather than issuing a new command to delete."
+  },
+  "usage": {
+    "input_tokens": 679,
+    "output_tokens": 68
+  },
+  "cost_usd": 7.132e-05,
+  "cached_at": "2026-10-25T02:54:43.518028+00:00"
+}

@@ -1,0 +1,91 @@
+{
+  "key": "447fdd06c20356ded7cd34466b96ea1a0627ec110683ce44d0d8c660dfe1a9b4",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_003",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-25T04:03:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_002",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-25T03:21:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_001",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-24T16:14:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_006",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-22T11:27:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_005",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-20T09:42:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "security_service",
+      "resource_id": "audit_record_004",
+      "category": "SECURITY_AUDIT_LOG",
+      "state": "PRESENT",
+      "user_id": "user_03",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-18T14:05:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    }
+  ],
+  "usage": {
+    "input_tokens": 1707,
+    "output_tokens": 825
+  },
+  "cost_usd": 0.00037552,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

@@ -1,0 +1,17 @@
+{
+  "key": "9cb9f2e3225d313242338200260d13ac611f8084b5b3121ff648f93be529625b",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": false,
+    "category": "INFORMATIONAL",
+    "confidence": 0.95,
+    "reason": "The user is inquiring about the status of a previous request rather than issuing a new, operative command to delete data."
+  },
+  "usage": {
+    "input_tokens": 677,
+    "output_tokens": 61
+  },
+  "cost_usd": 6.907e-05,
+  "cached_at": "2026-10-25T02:54:46.038465+00:00"
+}

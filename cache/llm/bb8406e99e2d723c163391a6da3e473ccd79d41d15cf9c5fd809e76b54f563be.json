@@ -1,0 +1,17 @@
+{
+  "key": "bb8406e99e2d723c163391a6da3e473ccd79d41d15cf9c5fd809e76b54f563be",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 0.95,
+    "reason": "The user is requesting confirmation that their profile is gone and that records are anonymized, which constitutes an affirmative request to ensure the account and data are deleted."
+  },
+  "usage": {
+    "input_tokens": 679,
+    "output_tokens": 70
+  },
+  "cost_usd": 7.193e-05,
+  "cached_at": "2026-10-25T02:54:50.909492+00:00"
+}

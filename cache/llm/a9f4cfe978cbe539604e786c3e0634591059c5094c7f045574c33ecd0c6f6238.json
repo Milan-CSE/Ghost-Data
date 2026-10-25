@@ -1,0 +1,17 @@
+{
+  "key": "a9f4cfe978cbe539604e786c3e0634591059c5094c7f045574c33ecd0c6f6238",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 0.95,
+    "reason": "The user explicitly requests the removal of their profile data from search results, which constitutes a request for the erasure of personal data."
+  },
+  "usage": {
+    "input_tokens": 674,
+    "output_tokens": 64
+  },
+  "cost_usd": 6.975e-05,
+  "cached_at": "2026-10-25T02:54:29.944299+00:00"
+}

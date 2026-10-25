@@ -1,0 +1,17 @@
+{
+  "key": "a9115e8ec487a734cd4d43dcfbce79d462988072b2871c5c633a0d9cbc7f09f0",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly requests to 'finish the deletion' of their account and data, indicating an operative command to ensure the deletion process is completed."
+  },
+  "usage": {
+    "input_tokens": 675,
+    "output_tokens": 66
+  },
+  "cost_usd": 7.042e-05,
+  "cached_at": "2026-10-25T02:54:44.981957+00:00"
+}

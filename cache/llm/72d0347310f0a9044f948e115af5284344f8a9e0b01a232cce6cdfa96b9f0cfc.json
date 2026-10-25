@@ -1,0 +1,39 @@
+{
+  "key": "72d0347310f0a9044f948e115af5284344f8a9e0b01a232cce6cdfa96b9f0cfc",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "search_service",
+      "resource_id": "search_428",
+      "category": "SEARCH_INDEX",
+      "state": "PRESENT",
+      "user_id": "user_13",
+      "email": "g.silva76@gmail.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-09-01T05:58:21Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "search_service",
+      "resource_id": "search_1874",
+      "category": "SEARCH_INDEX",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": "g.silva76.jr@gmail.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-09-01T05:55:03Z",
+      "confidence": 0.98,
+      "notes": ""
+    }
+  ],
+  "usage": {
+    "input_tokens": 1707,
+    "output_tokens": 286
+  },
+  "cost_usd": 0.00021382,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

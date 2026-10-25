@@ -1,0 +1,17 @@
+{
+  "key": "7a5bd1e410e697ca0f37d9a504920aff91ec857690d587d332a11d0b13ede499",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly requests to complete the deletion of their account ('completar la eliminaci\u00f3n') after a previous failed attempt."
+  },
+  "usage": {
+    "input_tokens": 680,
+    "output_tokens": 62
+  },
+  "cost_usd": 6.96e-05,
+  "cached_at": "2026-10-25T02:54:26.674162+00:00"
+}

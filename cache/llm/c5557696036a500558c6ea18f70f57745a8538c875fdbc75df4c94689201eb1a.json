@@ -1,0 +1,65 @@
+{
+  "key": "c5557696036a500558c6ea18f70f57745a8538c875fdbc75df4c94689201eb1a",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "integration_service",
+      "resource_id": "data_flow_1121",
+      "category": "DATA_FLOW",
+      "state": "ACTIVE",
+      "user_id": null,
+      "email": "jain.aditi@gmail.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-07T07:59:42Z",
+      "confidence": 0.98,
+      "notes": "Timestamp inferred from last contact column relative to page date."
+    },
+    {
+      "system_id": "integration_service",
+      "resource_id": "data_flow_9846",
+      "category": "DATA_FLOW",
+      "state": "ACTIVE",
+      "user_id": null,
+      "email": "lucia-torres@gmail.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-07T07:59:36Z",
+      "confidence": 0.98,
+      "notes": "Timestamp inferred from last contact column relative to page date."
+    },
+    {
+      "system_id": "integration_service",
+      "resource_id": "Order notifications",
+      "category": "DATA_FLOW",
+      "state": "ACTIVE",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-07T07:59:28Z",
+      "confidence": 0.95,
+      "notes": "Timestamp inferred from last contact column relative to page date."
+    },
+    {
+      "system_id": "integration_service",
+      "resource_id": "Delivery tracking",
+      "category": "DATA_FLOW",
+      "state": "ACTIVE",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-07T07:59:13Z",
+      "confidence": 0.95,
+      "notes": "Timestamp inferred from last contact column relative to page date."
+    }
+  ],
+  "usage": {
+    "input_tokens": 1681,
+    "output_tokens": 577
+  },
+  "cost_usd": 0.00029917,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

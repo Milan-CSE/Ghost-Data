@@ -1,0 +1,65 @@
+{
+  "key": "758eb15bfd3951f2f8e56f87b35bebfe485de89de6dc5499b22904cecc4a0231",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "customer_operations",
+      "resource_id": "account_5762",
+      "category": "USER_PROFILE",
+      "state": "ACTIVE",
+      "user_id": "user_11",
+      "email": "haruka.s1838@zoho.com",
+      "phone": "+81 90 7610 2507",
+      "email_hash": null,
+      "visible_timestamp": "2026-09-24T09:14:00+09:00",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "customer_operations",
+      "resource_id": "ORD-20265762",
+      "category": "ORDER",
+      "state": "ACTIVE",
+      "user_id": "user_11",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-09-12",
+      "confidence": 0.95,
+      "notes": ""
+    },
+    {
+      "system_id": "customer_operations",
+      "resource_id": "ORD-20265518",
+      "category": "ORDER",
+      "state": "ACTIVE",
+      "user_id": "user_11",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-28",
+      "confidence": 0.95,
+      "notes": ""
+    },
+    {
+      "system_id": "customer_operations",
+      "resource_id": "support_9538",
+      "category": "SUPPORT_MESSAGE",
+      "state": "ACTIVE",
+      "user_id": "user_11",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-08-28",
+      "confidence": 0.92,
+      "notes": ""
+    }
+  ],
+  "usage": {
+    "input_tokens": 1695,
+    "output_tokens": 542
+  },
+  "cost_usd": 0.00028973,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

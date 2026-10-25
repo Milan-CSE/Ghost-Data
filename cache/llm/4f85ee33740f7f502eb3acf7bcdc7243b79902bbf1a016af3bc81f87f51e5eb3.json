@@ -1,0 +1,39 @@
+{
+  "key": "4f85ee33740f7f502eb3acf7bcdc7243b79902bbf1a016af3bc81f87f51e5eb3",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "support_platform",
+      "resource_id": "CS-5034",
+      "category": "SUPPORT_MESSAGE",
+      "state": "PRESENT",
+      "user_id": "support_1034",
+      "email": "kagyeman8947@fastmail.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": null,
+      "confidence": 0.98,
+      "notes": "Extracted from ticket CS-5034 header and customer details."
+    },
+    {
+      "system_id": "support_platform",
+      "resource_id": "ORD-20265034",
+      "category": "DATA_FLOW",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-05-26",
+      "confidence": 0.95,
+      "notes": "Order details extracted from the right-hand sidebar."
+    }
+  ],
+  "usage": {
+    "input_tokens": 1695,
+    "output_tokens": 278
+  },
+  "cost_usd": 0.00021052,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

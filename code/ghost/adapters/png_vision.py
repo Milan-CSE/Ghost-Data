@@ -89,5 +89,5 @@ def parse(
     if vision_payload is not None:
         return parse_vision_payload(vision_payload, file_id, captured_at)
 
-    # Defer live model inference until Step 5
-    return []
+    from ghost.vision import extract_console_facts
+    return extract_console_facts(path, file_id, captured_at)

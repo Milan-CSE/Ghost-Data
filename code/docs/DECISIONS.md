@@ -79,3 +79,8 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Rationale:** Ensures zero ungrounded absence claims, accurately tracks and logs all unresolved fallback occurrences, and guarantees deterministic step generation without serializing unsupported state strings.
 - **Guarded By:** `tests/test_state.py`, `tests/test_ownership.py`.
 
+## D-17: Six-Tier Intent Arbitration, Multimodal Vision, and Telemetry Integration (Step 5)
+- **Decision:** Implemented the six-tier intent classification hierarchy (`code/ghost/intent.py`) enforcing clause-level syntactic precedence (normalization, informational/hypothetical filter, target-scoped negation, affirmative deletion mandate, scoped intake telemetry, conservative fallback). Integrated multimodal vision extraction (`code/ghost/vision.py`, `code/ghost/adapters/png_vision.py`) using `gemini-3.1-flash-lite` for all 11 administrative console screenshot artifacts, with schema validation, confidence flagging (< 0.8) to `review/vision_confidence.md`, and deterministic SHA-256 disk caching. Implemented centralized LLM client (`code/ghost/llm.py`) with fail-loud credential enforcement and telemetry logging to `runs/<run_id>/telemetry.jsonl`.
+- **Rationale:** Accurately separates valid deletion authorizations from non-deletion requests (identifying exactly 10 non-deletion requests across 518 evaluation cases), establishes evidence from previously inaccessible administrative screenshots with zero ungrounded absence claims, and maintains full token and cost accountability without leaking secrets.
+- **Guarded By:** `tests/test_intent.py`, `tests/test_vision_llm.py`, `evaluation/evaluation_report.md`, `evaluation/usage_report.md`.
+

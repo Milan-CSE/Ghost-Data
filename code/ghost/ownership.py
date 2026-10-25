@@ -60,11 +60,12 @@ class OwnershipLinker:
                 category = fact.category or infer_category(fact.resource_id, norm_sys)
                 key = (norm_sys, fact.resource_id)
                 if key not in candidates:
+                    sig = "vision" if fact.store == "screenshot_vision" else "identifier"
                     candidates[key] = OwnedResource(
                         system_id=norm_sys,
                         resource_id=fact.resource_id,
                         category=category,
-                        signal="identifier",
+                        signal=sig,
                         corroborated_by=(),
                     )
 

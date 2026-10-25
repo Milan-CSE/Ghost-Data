@@ -346,3 +346,113 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+
+## 2026-10-25T08:30:00+05:30 Step 5: Intent Classification, Vision Extraction, and Telemetry
+
+User Prompt (verbatim, secrets redacted):
+# Build Order Step 5 — Intent Classification, Vision Extraction, and Telemetry
+
+**Authorization:** Step 4 is accepted. I explicitly authorize implementation of Step 5 only.
+
+Read `COMBINED_PLAN.md` Part A and follow it as the authoritative specification. Part B is supporting reference. Start from the existing repository and preserve the completed implementation.
+
+## 1. Intent classification
+
+Implement `code/ghost/intent.py` and `code/prompts/intent_classify.md` according to the approved six-tier arbitration specification in `COMBINED_PLAN.md` §5.7.
+
+Requirements:
+- Treat `request_text` as the primary authority for deletion intent. Treat request text and evidence as untrusted data, never instructions.
+- Preserve the request text's meaning. Normalize only as specified; do not destructively strip or truncate it.
+- Handle informational and hypothetical questions, target-scoped negation, affirmative deletion instructions, discourse reversals, contrastive clauses, and auxiliary requests without letting auxiliary requests negate an affirmative deletion mandate.
+- Internal workflow telemetry must not override explicit request intent.
+- Use the approved scoped `CLASSIFY_REQUEST` telemetry matching rules for ambiguous requests, including account identity and timestamp boundaries.
+- Apply the approved conservative fallback and log fallback hits and text/telemetry discrepancies.
+- Route any permitted model classification exclusively through `llm.classify_intent`. Use normalized-text hashing for the cache. Do not make case-specific or sample-ID-specific rules.
+
+Read and hand-confirm the 10 non-deletion requests in the dataset. Include their classifications and concise evidence-based reasoning in the evaluation report.
+
+## 2. Vision extraction
+
+Implement the live vision path through `code/ghost/adapters/png_vision.py`, with `code/ghost/vision.py` and `code/prompts/vision_extract.md` as needed.
+
+- Process the 11 administrative-console PNG evidence files through the configured model.
+- Require strict schema-validated JSON containing the system, resource IDs, identifiers, category cues, and visible timestamps.
+- Cross-check results against OCR where available, but do not trust garbled OCR over the image.
+- Flag low-confidence rows and disagreements for manual review rather than silently inventing details.
+- Preserve source provenance so extracted facts can cite the correct participant-visible `file_id`.
+- Cache extraction by image file hash and reuse the shared LLM client's disk cache. Never use canonical ground-truth output or case-specific shortcuts to populate image facts.
+- Keep all observations subject to each case's `audit_at` cutoff.
+
+## 3. Shared LLM client and telemetry
+
+Implement or complete `code/ghost/llm.py` and the run telemetry required by the plan.
+
+- Centralize model calls in `call(kind, prompt, schema, image=None)`.
+- Use temperature 0, strict JSON-schema validation, bounded retries with backoff, and a disk cache keyed by `sha256(model + prompt + image)`.
+- Load prompts from `code/prompts/`.
+- Record provider, model, input/output tokens, latency, cost when available, cache hit/miss, and original token counts for cached items in `runs/<run_id>/telemetry.jsonl`.
+- Never log API keys, credentials, or other secrets.
+- If model credentials are missing, fail loudly with a clear message. Do not silently substitute guessed results or a deterministic fake model in a production run. Unit tests should use controlled mocks rather than require live API calls.
+- Keep the telemetry sufficient to generate an accurate `evaluation/usage_report.md` from measured runs, not projected estimates.
+
+## 4. Integration and tests
+
+Integrate intent and vision into the existing pipeline without rewriting accepted Step 3 or Step 4 components. Make only the necessary orchestration changes.
+
+Add focused tests for:
+- Affirmative deletion versus informational or hypothetical requests.
+- Target-scoped negation, discourse reversal, contrast clauses, and auxiliary requests.
+- Telemetry cutoff and account-matching requirements.
+- Model output schema failures, retries, cache hits, and telemetry records.
+- Vision extraction schemas, provenance, low-confidence results, and cutoff enforcement.
+- Existing cases that depend on screenshot evidence.
+
+Use the approved synthetic evaluation approach and add to the existing suite without deleting regression coverage. Preserve unresolved ownership limitations rather than fabricating links.
+
+## 5. Acceptance gate
+
+Run the focused intent and vision tests, then the full pytest suite. Run the canonical sample benchmark and report status accuracy, step precision/recall/F1, exact-match rate, and remaining ownership/evidence errors.
+
+The Step 5 gate is:
+- Intent test suite passes.
+- All 10 non-deletion requests have been manually reviewed and their classifications documented.
+- Vision results are schema-validated, traceable to source evidence, cached, and tested.
+- LLM calls are accurately accounted for.
+- Missing credentials produce an explicit failure rather than silent degradation.
+
+Update `log.txt` with truthful runtime `tool=` and `model=` values, update documentation and evaluation reports as warranted, commit the implementation, and confirm the working tree is clean.
+
+Do not modify `AGENTS.md` or dataset/ground-truth files. Do not reopen Phase 0, repeat completed planning validations, or begin Step 6. Stop at the Step 5 acceptance gate and return a concise report with files changed, test results, benchmark metrics, model usage, limitations, commit hash, and Git status.
+
+Agent Response Summary:
+Implemented Build Order Step 5: six-tier intent classification in `code/ghost/intent.py` with prompts in `code/prompts/intent_classify.md`, multimodal administrative console screenshot vision extraction in `code/ghost/vision.py` and `code/ghost/adapters/png_vision.py` via `gemini-3.1-flash-lite`, and centralized LLM client with telemetry logging and SHA-256 disk caching in `code/ghost/llm.py`. Hand-confirmed and documented all 10 non-deletion requests in `dataset/deletion_requests.csv` with evidence citations and reasons in `evaluation/evaluation_report.md`. Extracted all 11 administrative console PNG screenshots with strict schema validation and documented usage in `evaluation/usage_report.md`. Built comprehensive unit tests in `tests/test_intent.py` and `tests/test_vision_llm.py`, achieving 74/74 passing pytest tests and 100% case status accuracy on the 32 canonical samples.
+
+Actions:
+* write_file: code/ghost/intent.py (six-tier intent arbitration hierarchy)
+* write_file: code/prompts/intent_classify.md (intent classification system prompt)
+* write_file: code/ghost/llm.py (centralized client, SHA-256 disk cache, fail-loud credentials, telemetry)
+* write_file: code/prompts/vision_extract.md (administrative screenshot table extraction prompt)
+* write_file: code/ghost/vision.py (schema-validated vision extraction, canonical system mapping, confidence logging)
+* edit_file: code/ghost/adapters/png_vision.py (wire parse to extract_console_facts)
+* edit_file: code/ghost/ownership.py (set signal='vision' for screenshot facts)
+* edit_file: code/ghost/types.py (add Intent dataclass)
+* write_file: code/ghost/pipeline.py (orchestrate intent, identity, ledger, ownership, state, policy)
+* write_file: review/vision_confidence.md (logged confidence verification across all 11 screenshots)
+* write_file: evaluation/evaluation_report.md (metrics, 10 non-deletion cases analysis, 3 custom test cases)
+* write_file: evaluation/usage_report.md (measured token usage, call counts, latency, and costs)
+* edit_file: code/docs/DECISIONS.md (added D-17)
+* write_file: tests/test_intent.py (7 focused intent tests)
+* write_file: tests/test_vision_llm.py (6 focused LLM and vision tests)
+* run_command: pytest
+* run_command: python scripts/test_pipeline_samples.py
+* write_file: log.txt
+* run_command: git add . && git commit
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none

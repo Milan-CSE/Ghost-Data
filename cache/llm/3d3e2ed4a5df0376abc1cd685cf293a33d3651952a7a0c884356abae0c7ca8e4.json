@@ -1,0 +1,17 @@
+{
+  "key": "3d3e2ed4a5df0376abc1cd685cf293a33d3651952a7a0c884356abae0c7ca8e4",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 1.0,
+    "reason": "The user explicitly commands to 'Close the account completely', which constitutes an affirmative request for account and data deletion."
+  },
+  "usage": {
+    "input_tokens": 682,
+    "output_tokens": 60
+  },
+  "cost_usd": 6.915e-05,
+  "cached_at": "2026-10-25T02:54:39.560630+00:00"
+}

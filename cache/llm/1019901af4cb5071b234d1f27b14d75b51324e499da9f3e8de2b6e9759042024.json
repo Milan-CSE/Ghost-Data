@@ -1,0 +1,117 @@
+{
+  "key": "1019901af4cb5071b234d1f27b14d75b51324e499da9f3e8de2b6e9759042024",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "object_storage",
+      "resource_id": "delivery_confirmation_19.pdf",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-12T18:42:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "delivery_confirmation_20.pdf",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-11T14:17:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "return_label_4821.pdf",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-10T09:33:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "return_label_4876.pdf",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-11T16:05:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "invoice_NS-10493.pdf",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-10T11:21:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "parcel_damage_7713.jpg",
+      "category": "SUPPORT_ATTACHMENT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-12T10:08:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "customer_export_2026-02-10.zip",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-10T23:14:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    },
+    {
+      "system_id": "object_storage",
+      "resource_id": "customer_export_2026-02-12.zip",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-02-12T21:56:00Z",
+      "confidence": 0.98,
+      "notes": ""
+    }
+  ],
+  "usage": {
+    "input_tokens": 1681,
+    "output_tokens": 1082
+  },
+  "cost_usd": 0.00045067,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

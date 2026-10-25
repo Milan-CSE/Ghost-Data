@@ -1,0 +1,26 @@
+{
+  "key": "dff8d5e95f23e99c272681db9a2e00a7ec51818a0a25a782b9555b6e69128816",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "identity_service",
+      "resource_id": "tombstone_17",
+      "category": "ACCOUNT_TOMBSTONE",
+      "state": "REDACTED",
+      "user_id": "user_17",
+      "email": null,
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-03-10T07:18:00Z",
+      "confidence": 0.99,
+      "notes": "Customer reference registry retained customer key for user_17"
+    }
+  ],
+  "usage": {
+    "input_tokens": 1707,
+    "output_tokens": 534
+  },
+  "cost_usd": 0.00028823,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

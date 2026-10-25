@@ -1,0 +1,65 @@
+{
+  "key": "53ba83ad1ff8d27349a894e8747d58350feac0d8b2e18caec928f68b7349ad99",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "vision",
+  "result": [
+    {
+      "system_id": "export_service",
+      "resource_id": "export_1261",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": "marcus.lee@northstar.shop",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-06-20T14:18:00Z",
+      "confidence": 0.95,
+      "notes": ""
+    },
+    {
+      "system_id": "export_service",
+      "resource_id": "export_1260",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": "ingrid.dahl@outlook.com",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-06-18T06:42:00Z",
+      "confidence": 0.95,
+      "notes": ""
+    },
+    {
+      "system_id": "export_service",
+      "resource_id": "export_1259",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": "sara.kim@northstar.shop",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-06-17T11:03:00Z",
+      "confidence": 0.95,
+      "notes": ""
+    },
+    {
+      "system_id": "export_service",
+      "resource_id": "export_1258",
+      "category": "CUSTOMER_EXPORT",
+      "state": "PRESENT",
+      "user_id": null,
+      "email": "daniel.park@northstar.shop",
+      "phone": null,
+      "email_hash": null,
+      "visible_timestamp": "2026-06-16T09:27:00Z",
+      "confidence": 0.95,
+      "notes": ""
+    }
+  ],
+  "usage": {
+    "input_tokens": 1707,
+    "output_tokens": 554
+  },
+  "cost_usd": 0.00029423,
+  "cached_at": "2026-10-25T08:15:00Z"
+}

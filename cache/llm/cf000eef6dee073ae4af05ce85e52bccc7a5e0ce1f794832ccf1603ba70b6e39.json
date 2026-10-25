@@ -1,0 +1,17 @@
+{
+  "key": "cf000eef6dee073ae4af05ce85e52bccc7a5e0ce1f794832ccf1603ba70b6e39",
+  "model": "gemini-3.1-flash-lite",
+  "kind": "intent",
+  "result": {
+    "is_deletion": true,
+    "category": "DELETION",
+    "confidence": 0.95,
+    "reason": "The user explicitly requests to 'remove my profile' and 'clean my personal details', which constitutes an affirmative mandate for data erasure despite the nuance regarding support conversation retention."
+  },
+  "usage": {
+    "input_tokens": 682,
+    "output_tokens": 72
+  },
+  "cost_usd": 7.275e-05,
+  "cached_at": "2026-10-25T02:54:41.939211+00:00"
+}
