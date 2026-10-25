@@ -12,11 +12,25 @@ from ghost.ledger import View
 
 
 def _record_unresolved_entry(case_id: str, system_id: str, resource_id: str, reason: str) -> None:
-    """Record genuinely unresolved states in review/unresolved.md per Patch P3."""
+    """Record genuinely unresolved states in review/unresolved.md per Patch P3 without duplicates."""
     review_dir = Path("review")
     review_dir.mkdir(parents=True, exist_ok=True)
     unresolved_file = review_dir / "unresolved.md"
-    entry = f"- Case `{case_id}`: Resource `{system_id}/{resource_id}` — {reason}\n"
+    target_prefix = f"- Case `{case_id}`: Resource `{system_id}/{resource_id}`"
+    if unresolved_file.exists():
+        content = unresolved_file.read_text(encoding="utf-8")
+        if target_prefix in content:
+            return
+    else:
+        unresolved_file.write_text(
+            "# Unresolved Resource States Log (Patch P3)\n\n"
+            "This log records resources whose point-in-time state at `audit_at` could not be definitively resolved "
+            "from direct post-workflow observations or authoritative covering stores, falling back to deterministic "
+            "safe defaults per Patch P3 (preserving earlier admissible observations or safe presence, never inventing absence).\n\n",
+            encoding="utf-8",
+        )
+
+    entry = f"{target_prefix} — {reason}\n"
     with open(unresolved_file, "a", encoding="utf-8") as f:
         f.write(entry)
 

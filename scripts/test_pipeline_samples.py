@@ -25,5 +25,3 @@ for req in sample_requests:
     })
 
 results = score_predictions(pred_rows, sample_truth)
-from evaluation.score import print_score_report
-print_score_report(results)

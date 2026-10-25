@@ -58,6 +58,9 @@ class OwnershipLinker:
                 if norm_sys not in VALID_SYSTEMS:
                     continue
                 category = fact.category or infer_category(fact.resource_id, norm_sys)
+                # An account tombstone created before the deletion request was submitted belongs to a prior lifecycle
+                if category == "ACCOUNT_TOMBSTONE" and requested_at and fact.captured_at < requested_at:
+                    continue
                 key = (norm_sys, fact.resource_id)
                 if key not in candidates:
                     sig = "vision" if fact.store == "screenshot_vision" else "identifier"

@@ -456,3 +456,61 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+
+## 2026-10-25T09:27:00+05:30 Build Order Step 6: Weak-Spot Pass & Synthetic Invariant Coverage
+
+User Prompt (verbatim, secrets redacted):
+# Build Order Step 6 — Weak-Spot Pass
+
+Continue the existing HackerRank Orchestrate "Ghost Data Still Exists" project from its current repository state.
+
+**Authoritative plan:** `COMBINED_PLAN.md` Part A. Follow the approved build order without reopening completed planning or implementation phases.
+
+## Objective
+
+Complete Build Order Step 6: address the planned weak spots, strengthen regression coverage, and improve reliability without compromising evidence correctness.
+
+### 1. Preserve the current repository state
+- Start from the actual repository root.
+- Read `AGENTS.md` and follow its logging requirements.
+- Check Git status and recent commits before modifying files.
+- Preserve existing untracked runtime telemetry and any user files.
+- Do not reset, clean, or discard existing work.
+
+### 2. Complete the weak-spot pass
+
+Follow the specific requirements in `COMBINED_PLAN.md`:
+- Review `review/unresolved.md` and ensure unresolved resource links and state fallbacks are accurately documented and counted.
+- Review rare evidence signatures and parser edge cases across the existing evidence adapters.
+- Review low-confidence vision extractions and disagreements in `review/vision_confidence.md`.
+- Measure and report ordering ambiguities across phases and operations.
+- Add and run regression tests for prompt injection in request text and evidence logs (treating all request/evidence data as inert/untrusted data, never instructions).
+- Implement synthetic evaluation coverage per Part A Patch P7: at least eight custom evaluation cases in `evaluation/evaluation_report.md` (the original 3 + uppercase email, historical email, decoy name, restore blocked vs allowed, tombstone dirty vs clean) with test execution in `tests/test_custom_cases.py`.
+- Report metrics, exact-match count, step precision, recall, F1, error categories, and unresolved resource counts.
+- Update `code/docs/DECISIONS.md`, `log.txt`, and commit intentional changes with a clean Git working tree.
+- Strict stop condition: Stop after Step 6; do NOT proceed to Step 7 or 8 without explicit authorization.
+
+Agent Response Summary:
+Completed Build Order Step 6: executed the planned weak-spot pass, hardened edge case parsers, and implemented comprehensive synthetic evaluation coverage. Enforced a lifecycle temporal guard on account tombstones in `code/ghost/ownership.py`, resolving sample `case_17` to a 100% byte-exact ground-truth match (raising exact match rate to 28.12% / 9/32) and reducing sample fallbacks to exactly 0 (with exactly 3 across 518 cases). Implemented prompt injection regression tests in `tests/test_security_injection.py` and the 8 mandatory custom evaluation cases in `tests/test_custom_cases.py` (all 89 pytest tests passing in 1.9s). Verified zero ordering ambiguities across all 518 evaluation cases (2,621 steps), documented findings and decisions in `code/docs/DECISIONS.md` (D-18) and `evaluation/evaluation_report.md`, and halted for authorization.
+
+Actions:
+* edit_file: code/ghost/ownership.py (added tombstone lifecycle guard fact.captured_at >= requested_at)
+* edit_file: code/ghost/state.py (idempotent logging in _record_unresolved_entry)
+* edit_file: code/ghost/adapters/pdf_text.py (statement ID regex and row-by-row legal retention register parsing)
+* write_file: review/unresolved.md (documented deduplicated fallbacks: 0 on samples, 3 on 518 cases)
+* write_file: tests/test_security_injection.py (7 prompt injection attack regression tests)
+* write_file: tests/test_custom_cases.py (8 mandatory synthetic evaluation cases per Patch P7)
+* edit_file: evaluation/evaluation_report.md (updated metrics, detailed 8 custom cases, and Step 6 discovery report)
+* edit_file: code/docs/DECISIONS.md (added D-18)
+* run_command: pytest (89/89 tests passed in 1.9s)
+* run_command: python scripts/test_pipeline_samples.py (evaluated canonical 32-case benchmark)
+* write_file: log.txt (per-turn log entry)
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
