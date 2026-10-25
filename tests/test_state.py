@@ -131,16 +131,18 @@ def test_state_process_predicates():
     assert backup_res.state == State.BLOCKED
 
 
-def test_p3_last_admissible_observation_preserved():
-    """P3 Case 1: When a resource has an earlier admissible observation and no newer observation,
+def test_p3_last_admissible_observation_preserved(tmp_path, monkeypatch):
+    """P3 Case 1: When a resource has an earlier admissible observation and no newer observation
 
-    preserve the last admissible observation as the fallback.
+    post-dating the workflow, preserve the last admissible observation as the fallback,
+    record the uncertainty in review/unresolved.md, and mark is_unresolved=True.
     """
+    monkeypatch.chdir(tmp_path)
     cutoff = "2026-09-15T12:00:00Z"
     facts = [
         Fact(
             file_id="ev_earlier_obs",
-            captured_at="2026-08-15T10:00:00Z",  # Earlier observation, well before cutoff
+            captured_at="2026-08-15T10:00:00Z",  # Earlier observation, well before reported_at
             system_id="support_platform",
             resource_id="support_shared_conv",
             category="SUPPORT_MESSAGE",
@@ -155,9 +157,18 @@ def test_p3_last_admissible_observation_preserved():
     recon = StateReconstructor()
     res_state = recon.reconstruct(owned, view, case)
 
+    # State and evidence citation are preserved from last admissible observation
     assert res_state.state == State.PRESENT
     assert res_state.evidence_id == "ev_earlier_obs"
-    assert res_state.is_unresolved is False
+    # Fallback to last admissible observation must NOT be marked fully resolved
+    assert res_state.is_unresolved is True
+
+    # Must record uncertainty in review/unresolved.md
+    log_file = tmp_path / "review" / "unresolved.md"
+    assert log_file.exists()
+    content = log_file.read_text(encoding="utf-8")
+    assert "case_p3_1" in content
+    assert "support_shared_conv" in content
 
 
 def test_p3_no_admissible_observation_deterministic_fallback(tmp_path, monkeypatch):

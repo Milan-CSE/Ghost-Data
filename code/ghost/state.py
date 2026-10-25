@@ -49,6 +49,16 @@ class StateReconstructor:
                     selected_fact = f
                     break
 
+            # Check if this observation is a fallback because no newer evidence post-dates the workflow
+            rep_at = case.get("reported_at", "") if isinstance(case, dict) else (case.reported_at if hasattr(case, "reported_at") else "")
+            req_at = case.get("requested_at", "") if isinstance(case, dict) else (case.requested_at if hasattr(case, "requested_at") else "")
+            boundary = rep_at or req_at
+            is_fallback_obs = bool(boundary and latest_time < boundary)
+
+            if is_fallback_obs:
+                reason = f"No newer evidence post-dating {boundary} resolves state; falling back to last admissible observation from {latest_time}"
+                _record_unresolved_entry(case_id, owned.system_id, owned.resource_id, reason)
+
             # Handle process flow predicates (integration_service / backup_service)
             if owned.system_id == "integration_service":
                 # Ensure state is process-compliant
@@ -61,7 +71,7 @@ class StateReconstructor:
                     category="DATA_FLOW",
                     state=st,
                     evidence_id=selected_fact.file_id,
-                    is_unresolved=False,
+                    is_unresolved=is_fallback_obs,
                 )
 
             if owned.system_id == "backup_service":
@@ -74,7 +84,7 @@ class StateReconstructor:
                     category="BACKUP_ARCHIVE",
                     state=st,
                     evidence_id=selected_fact.file_id,
-                    is_unresolved=False,
+                    is_unresolved=is_fallback_obs,
                 )
 
             # Security audit logs are always retained
@@ -85,7 +95,7 @@ class StateReconstructor:
                     category="SECURITY_AUDIT_LOG",
                     state=State.PRESENT,
                     evidence_id=selected_fact.file_id,
-                    is_unresolved=False,
+                    is_unresolved=is_fallback_obs,
                 )
 
             # Redacted records (Tombstones and Support Conversations)
@@ -101,7 +111,7 @@ class StateReconstructor:
                     category=owned.category,
                     state=st,
                     evidence_id=selected_fact.file_id,
-                    is_unresolved=False,
+                    is_unresolved=is_fallback_obs,
                 )
 
             # Standard entity resolution
@@ -111,7 +121,7 @@ class StateReconstructor:
                 category=owned.category,
                 state=selected_fact.state,
                 evidence_id=selected_fact.file_id,
-                is_unresolved=False,
+                is_unresolved=is_fallback_obs,
             )
 
         # 2. No direct observation of this resource exists in the admissible view

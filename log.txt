@@ -310,3 +310,39 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+## 2026-10-25T08:00:00+05:30 Targeted P3 Correction: Last Admissible Observation Uncertainty Logging
+
+User Prompt (verbatim, secrets redacted):
+Final Step 4 review: P6 is accepted. Make one targeted P3 correction before requesting acceptance.
+
+The approved `COMBINED_PLAN.md` Part A, patch P3, explicitly requires the last-admissible-observation fallback to be recorded in `review/unresolved.md` and its count to be reported.
+
+1. Update `code/ghost/state.py` so that when the engine falls back to a last admissible observation because no newer evidence resolves the state, it records the uncertainty. Do not mark that fallback as fully resolved merely because an observation exists.
+2. Update `tests/test_state.py` to verify that this fallback is recorded and counted.
+3. Preserve the approved behavior: never invent absence, never serialize an unsupported `UNRESOLVED` state, and do not change ownership or temporal rules.
+4. Run the focused state tests and full pytest suite. Do not rerun the 32-case benchmark unless the emitted predictions change.
+5. Update `review/unresolved.md`, the decision log if needed, and `log.txt` truthfully. Commit the minimal correction and confirm a clean working tree.
+
+Do not restart Step 4, modify datasets or `AGENTS.md`, or begin Step 5. Return the correction report for final acceptance.
+
+Agent Response Summary:
+Updated `code/ghost/state.py` so that when a resource's latest observation pre-dates the reported workflow without newer evidence resolving its state, the engine preserves that last admissible observation as the deterministic state while explicitly recording uncertainty in `review/unresolved.md` and marking `is_unresolved=True`. Updated `tests/test_state.py` to verify both fallback cases and ensure uncertainty logging is accurately asserted. Ran focused state tests and the full 61-test pytest suite (all passing), refreshed `review/unresolved.md`, updated decision log D-16, and confirmed a clean Git working tree.
+
+Actions:
+* edit_file: code/ghost/state.py (detect pre-workflow observations, record uncertainty in review/unresolved.md, set is_unresolved=True)
+* edit_file: tests/test_state.py (assert is_unresolved=True and review/unresolved.md logging for last admissible observation fallback)
+* edit_file: review/unresolved.md (fresh deterministic evaluation logging)
+* edit_file: code/docs/DECISIONS.md (updated D-16)
+* run_command: pytest tests/test_state.py
+* run_command: pytest
+* write_file: log.txt
+* run_command: git add . && git commit
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
