@@ -27,3 +27,5 @@ This log records resources whose point-in-time state at `audit_at` could not be 
 - Case `case_34`: Resource `support_platform/support_9538` — No newer evidence post-dating 2026-09-26T02:00:00Z resolves state; falling back to last admissible observation from 2026-09-15T11:51:46Z
 - Case `case_17`: Resource `identity_service/tombstone_17` — No newer evidence post-dating 2026-08-22T12:00:00Z resolves state; falling back to last admissible observation from 2026-03-10T06:00:00Z
 - Case `case_17`: Resource `identity_service/tombstone_17` — No newer evidence post-dating 2026-08-22T12:00:00Z resolves state; falling back to last admissible observation from 2026-03-10T06:00:00Z
+- Case `case_17`: Resource `identity_service/tombstone_17` — No newer evidence post-dating 2026-08-22T12:00:00Z resolves state; falling back to last admissible observation from 2026-03-10T06:00:00Z
+- Case `case_17`: Resource `identity_service/tombstone_17` — No newer evidence post-dating 2026-08-22T12:00:00Z resolves state; falling back to last admissible observation from 2026-03-10T06:00:00Z
