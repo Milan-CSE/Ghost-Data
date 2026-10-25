@@ -29,3 +29,28 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Decision:** Implement `code/main.py` to deterministically emit all 518 evaluation cases (`case_33` through `case_550`) matching the natural request order and valid `NOT_APPLICABLE` / `[]` schema.
 - **Rationale:** Establishes a verified, structurally compliant output artifact early as a submission safety net, with automated file validation stopping any malformed output.
 - **Guarded By:** `tests/test_baseline.py` and `ghost.validate.validate_file`.
+
+## D-08: Historical Search Surface Anti-Leakage Invariant (Step 3)
+- **Decision:** Identifiers (`email`, `phone`, `email_hash`) that originated in audit log events after `audit_at` are strictly excluded from `IdentityBag.search_surface`.
+- **Rationale:** Prevents future temporal leakage during evidence lookup and ensures the agent evaluates compliance solely as of `audit_at`.
+- **Guarded By:** `tests/test_identity.py::test_anti_leakage_post_cutoff_exclusion`.
+
+## D-09: Point-in-Time Identity Rollback (Step 3)
+- **Decision:** Reconstruct the active identity tuple as of `audit_at` by rolling back future audit log transitions (`event_time > audit_at`) in reverse-chronological order.
+- **Rationale:** Resolves whether active direct identifiers remained in account tombstones or customer profiles at the precise audit cutoff.
+- **Guarded By:** `tests/test_identity.py::test_rollback_future_audit_events`.
+
+## D-10: Cross-Format Covering Index (Step 3, Defect case_31 Resolution)
+- **Decision:** `View.covering_snapshot` indexes all authoritative stores across SQL dumps, JSON snapshot bundles, and ledgers by `captured_at`.
+- **Rationale:** Resolves the known `case_31` defect where a single-format SQL selector selected older `evidence_54` instead of newer JSON bundle `evidence_51`.
+- **Guarded By:** `tests/test_ledger.py::test_case_31_cross_format_covering_snapshot_selection`.
+
+## D-11: Replication Drift State Priority (Step 3)
+- **Decision:** When multiple observations for a resource share the exact latest timestamp, prioritize surviving copies (`PRESENT` / `ACTIVE`).
+- **Rationale:** Implements the verified replication drift pattern (e.g., sample `case_05` where failover replica retains data deleted from primary).
+- **Guarded By:** `tests/test_ledger.py::test_replication_drift_presence_priority`.
+
+## D-12: Authoritative Covering vs Observation Log Separation (Step 3)
+- **Decision:** Full store/table captures set `covers_system=True`. Event logs, syslog streams, PDF documents, and targeted ledger lookups set `covers_system=False`.
+- **Rationale:** Omission of a resource indicates `ABSENT` only within authoritative covering snapshots, never within point-in-time observation logs.
+- **Guarded By:** Adapter unit tests in `tests/test_adapters.py`.

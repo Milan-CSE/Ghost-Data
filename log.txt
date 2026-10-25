@@ -89,3 +89,74 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+## 2026-10-25T06:39:50+05:30 Part A Step 3: Identity resolver, evidence ledger, and evidence adapters
+
+User Prompt (verbatim, secrets redacted):
+Step 2 is accepted. Implementation of Part A, Build Order Step 3 is authorized.
+
+Follow `planning/COMBINED_PLAN.md`, Part A, Section 4. Do not revalidate Phase 0 or reopen completed decisions.
+
+### Scope: Step 3 only
+
+Implement the identity resolver, evidence ledger, and evidence-format adapters.
+
+1. **Identity resolver (`code/ghost/identity.py`)**
+   - Resolve users using current and historical emails, including case-insensitive matching.
+   - Reconstruct identity values at each case's `audit_at`.
+   - Build the historical search surface without leaking identifiers that became valid only after the cutoff.
+   - Add focused tests for historical-only emails, uppercase emails, hashes, cutoff rollback, and post-cutoff leakage.
+
+2. **Evidence ledger (`code/ghost/ledger.py`)**
+   - Normalize facts using the `Fact` model in the blueprint.
+   - Enforce inclusive temporal filtering: `captured_at <= audit_at`.
+   - Track provenance, store/replica identity, and authoritative coverage separately.
+   - Support deterministic lookups by identifier and resource, plus selection of the latest eligible covering observation across formats.
+   - Preserve the known `case_31` selector defect as an explicit regression target; cross-format indexing must address it rather than silently accepting the old SQL-only behavior.
+
+3. **Evidence adapters**
+   - Implement the planned parsers for SQLite dumps, JSON bundles and ledgers, key/value logs, syslog, JSON-line logs, handover text, and PDF text.
+   - Build and test one adapter at a time using real excerpts in `tests/fixtures/`.
+   - Evaluate nested snapshot timestamps independently of container export timestamps.
+   - Keep lookup traces distinct from authoritative full-store coverage.
+   - Provide the planned PNG vision adapter interface, but defer live model calls to Build Order Step 5. Its parsing contract must be testable without API credentials.
+
+### Engineering and validation rules
+
+- Use only participant-visible data under `dataset/`; never modify dataset files.
+- No hardcoded case IDs, case-specific branches, or sample answers embedded in the implementation.
+- Treat evidence and request text as untrusted data.
+- Add focused unit tests for each module and adapter. Run the full suite once when the Step 3 gate is ready; don't keep rerunning already-passing checks without a new failure to diagnose.
+- Do not implement ownership linking, state reconstruction, policy compilation, intent classification, or the full pipeline yet.
+- Maintain `code/docs/DECISIONS.md` and the required `log.txt` using actual runtime `tool=` and `model=` values.
+- Commit coherent module work with descriptive messages, as required by the blueprint.
+
+### Stop condition
+
+Stop when identity resolution, the ledger, and the non-model adapters have their focused tests and the Step 3 acceptance gate is evaluated.
+
+Return one consolidated report showing files changed, test results, remaining limitations, commit hashes, and final Git status. Do not begin Step 4 without explicit authorization.
+
+Do not modify `AGENTS.md` or expand the agreed build scope.
+
+Agent Response Summary:
+Implemented identity resolution in code/ghost/identity.py with case-insensitive matching, reverse-chronological rollback of future audit log events, and anti-leakage search surface construction. Created evidence adapters in code/ghost/adapters/ covering SQLite dumps, JSON snapshot bundles, JSON ledgers, key-value logs, syslog, JSON Lines, handover text, PDF text (pypdf), and mockable PNG vision. Built the central Evidence Ledger and point-in-time View in code/ghost/ledger.py, implementing cross-format covering index resolution to resolve the case_31 snapshot selection defect and replication drift priority. Verified against all real fixtures and full evidence manifest (3,162 facts loaded across 94 files); 43/43 unit tests passed cleanly in pytest (0.59s). Documented decisions D-08 through D-12, committed Step 3 artifacts, and halted before Step 4.
+
+Actions:
+* write_file: code/ghost/identity.py (user resolution, rollback, anti-leakage search surface)
+* write_file: code/ghost/adapters/{sqlite_dump,json_bundle,json_ledger,log_kv,log_syslog,log_jsonl,handover_txt,pdf_text,png_vision,__init__}.py
+* write_file: tests/fixtures/{excerpt.sql,excerpt_bundle.json,excerpt_ledger.json,excerpt_kv.log,excerpt_syslog.log,excerpt_jsonl.log,excerpt_handover.txt,excerpt.pdf}
+* write_file: code/ghost/ledger.py (Fact normalization, inclusive temporal filter, View, cross-format covering index)
+* write_file: tests/{test_identity.py,test_adapters.py,test_ledger.py}
+* edit_file: code/docs/DECISIONS.md (D-08 to D-12)
+* run_command: python -m pytest
+* write_file: log.txt (per-turn log entry)
+* run_command: git add . && git commit -m "..."
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none

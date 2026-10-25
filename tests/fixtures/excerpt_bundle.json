@@ -1,0 +1,50 @@
+{
+  "exported_at": "2026-01-31T12:00:00Z",
+  "source": "records_assurance_snapshot_bundle",
+  "snapshots": [
+    {
+      "captured_at": "2026-01-29T12:00:00Z",
+      "data_store": "account_service",
+      "collection": "customer_profiles",
+      "records": [
+        {
+          "resource_id": "account_2424",
+          "customer_reference": "user_521",
+          "full_name": "Aarav Rao",
+          "email": "aarav.r528@outlook.com",
+          "phone": "+91 91726 13808",
+          "account_status": "ACTIVE"
+        },
+        {
+          "resource_id": "tombstone_99",
+          "customer_reference": "user_99",
+          "full_name": null,
+          "email": null,
+          "phone": null,
+          "account_status": "DELETED"
+        }
+      ]
+    },
+    {
+      "captured_at": "2026-01-30T10:00:00Z",
+      "data_store": "analytics_platform",
+      "collection": "customer_analytics_reports",
+      "records": [
+        {
+          "resource_id": "analytics_131",
+          "user_id": "user_524",
+          "email": "chevalier.hugo@icloud.com",
+          "phone": "+33 6 75 22 36 69",
+          "email_hash": "7959c102c6852f4a8686afc816c451db299ab6b31f2aa053c2a1921af7427c14"
+        },
+        {
+          "resource_id": "analytics_999",
+          "user_id": null,
+          "email": null,
+          "phone": null,
+          "email_hash": null
+        }
+      ]
+    }
+  ]
+}
