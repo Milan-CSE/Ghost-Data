@@ -13,10 +13,15 @@ class View:
 
     def __init__(self, audit_at: str, facts: list[Fact]):
         self.audit_at = audit_at
-        # Strict inclusive temporal boundary: captured_at <= audit_at AND file_captured_at <= audit_at
+        # Later containers are admissible only when each record carries its own
+        # explicit timestamp and that record is at or before the audit cutoff.
         self.facts = [
             f for f in facts
-            if f.captured_at <= audit_at and (not f.file_captured_at or f.file_captured_at <= audit_at)
+            if f.captured_at <= audit_at and (
+                f.has_independent_timestamp
+                or not f.file_captured_at
+                or f.file_captured_at <= audit_at
+            )
         ]
 
         self._by_resource: dict[tuple[str, str], list[Fact]] = defaultdict(list)
@@ -92,6 +97,28 @@ class View:
         """Lookup all admissible facts associated with an identifier."""
         return list(self._by_identifier.get(identifier.strip().lower(), []))
 
+    def citation_for(self, fact: Fact) -> str:
+        """Prefer a same-state citation whose evidence container predates the cutoff."""
+        if not fact.file_captured_at or fact.file_captured_at <= self.audit_at:
+            return fact.file_id
+        def citation_state(candidate: Fact):
+            if candidate.category in {"BACKUP_ARCHIVE", "DATA_FLOW", "INTEGRATION_DATA_FLOW"}:
+                if candidate.state in {State.PRESENT, State.ACTIVE}:
+                    return State.ACTIVE
+                if candidate.state in {State.ABSENT, State.DISABLED, State.BLOCKED}:
+                    return candidate.state
+            return candidate.state
+
+        prior = [
+            candidate for candidate in self._by_resource.get((fact.system_id, fact.resource_id), [])
+            if citation_state(candidate) == citation_state(fact)
+            and candidate.file_captured_at
+            and candidate.file_captured_at <= self.audit_at
+        ]
+        if prior:
+            return max(prior, key=lambda candidate: candidate.captured_at).file_id
+        return fact.file_id
+
 
 class Ledger:
     """Central store for normalized observations across all evidence sources."""
@@ -152,6 +179,7 @@ class Ledger:
                                 store=f.store,
                                 covers_system=f.covers_system,
                                 file_captured_at=captured_at,
+                                has_independent_timestamp=f.has_independent_timestamp,
                             )
                             self._facts.append(f_with_fc)
                         else:

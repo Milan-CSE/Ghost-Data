@@ -127,6 +127,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                 phones=frozenset(phones),
                 store="log_jsonl",
                 covers_system=False,
+                has_independent_timestamp=bool(ts_match),
             )
         )
 

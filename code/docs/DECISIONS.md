@@ -104,3 +104,9 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Rationale:** Guarantees that production output generation is fully integrated, 100% reproducible, adheres strictly to the 518-case contract, and passes all validation gates without manual intervention.
 - **Guarded By:** `tests/test_baseline.py`, `code/main.py`, `ghost.validate.validate_file`.
 
+## D-20: Timestamped Records Inside Later Evidence Containers
+- **Decision:** Admitted records from a later JSON snapshot bundle or structured JSONL log only when the adapter extracts an explicit inner timestamp and that record timestamp is at or before the case cutoff. Kept ordinary file-level evidence subject to the manifest cutoff. When the same resource and state also have a pre-cutoff evidence source, cite that admissible source in emitted steps.
+- **Rationale:** Evidence inspection confirmed in-scope records for the affected cases: the bundle's inner snapshots are stamped at the case cutoff, while its manifest capture is later; the structured log has event times before the cutoff despite its later manifest capture. A regression test confirms exact-cutoff inclusion, post-cutoff inner-record exclusion, ordinary late-file exclusion, and citation preference for an admissible same-state source.
+- **Measurement:** Canonical sample scorer improved from 9/32 to 11/32 exact matches; status accuracy stayed 100%; step precision stayed 100%; recall rose from 81.87% to 85.49%; F1 rose from 90.03% to 92.18%; sequence mean LCS rose from 79.40% to 81.25%. Evidence-ID accuracy rose from 81.87% to 85.49%, and the ownership/identity residual count fell from 23 to 21. All 93 tests pass. The remaining non-exact cases still have only missing ownership/identity steps; no unsupported account, analytics, or screenshot relationship was added.
+- **Guarded By:** `tests/test_ledger.py`, `tests/test_adapters.py`, canonical sample scorer.
+

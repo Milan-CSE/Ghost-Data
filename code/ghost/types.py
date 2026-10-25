@@ -59,6 +59,7 @@ class Fact:
     store: str = ""  # e.g. "primary", "failover_replica", "bundle"
     covers_system: bool = False  # True only for authoritative full-table/bundle observations
     file_captured_at: str = ""  # Manifest captured_at of the evidence file
+    has_independent_timestamp: bool = False  # Explicit record time within a later container
 
 
 VALID_SYSTEMS: frozenset[str] = frozenset({

@@ -45,6 +45,53 @@ def test_inclusive_temporal_filtering():
     assert latest_fact.state == State.ABSENT
 
 
+def test_later_container_admits_only_explicit_record_time_at_cutoff():
+    """A later export may carry earlier records; timestamps after audit remain excluded."""
+    audit_at = "2026-09-15T12:00:00Z"
+    ledger = Ledger()
+    embedded_at_cutoff = Fact(
+        file_id="later_bundle", captured_at=audit_at,
+        system_id="security_service", resource_id="audit_record_1",
+        category="SECURITY_AUDIT_LOG", state=State.PRESENT,
+        file_captured_at="2026-09-17T12:00:00Z", has_independent_timestamp=True,
+    )
+    embedded_after_cutoff = Fact(
+        file_id="later_bundle", captured_at="2026-09-15T12:00:01Z",
+        system_id="security_service", resource_id="audit_record_2",
+        category="SECURITY_AUDIT_LOG", state=State.PRESENT,
+        file_captured_at="2026-09-17T12:00:00Z", has_independent_timestamp=True,
+    )
+    unverified_late_record = Fact(
+        file_id="later_file", captured_at=audit_at,
+        system_id="security_service", resource_id="audit_record_3",
+        category="SECURITY_AUDIT_LOG", state=State.PRESENT,
+        file_captured_at="2026-09-17T12:00:00Z",
+    )
+    ledger.add([embedded_at_cutoff, embedded_after_cutoff, unverified_late_record])
+
+    view = ledger.admissible(audit_at)
+    assert [f.resource_id for f in view.facts] == ["audit_record_1"]
+
+
+def test_later_snapshot_citation_uses_admissible_same_state_record():
+    audit_at = "2026-09-15T12:00:00Z"
+    earlier = Fact(
+        file_id="available_before_cutoff", captured_at="2026-09-15T11:44:00Z",
+        system_id="search_service", resource_id="search_1",
+        category="SEARCH_INDEX_ENTRY", state=State.PRESENT,
+        file_captured_at="2026-09-15T11:44:00Z",
+    )
+    embedded = Fact(
+        file_id="later_bundle", captured_at=audit_at,
+        system_id="search_service", resource_id="search_1",
+        category="SEARCH_INDEX_ENTRY", state=State.PRESENT,
+        file_captured_at="2026-09-17T12:00:00Z", has_independent_timestamp=True,
+    )
+    view = View(audit_at, [earlier, embedded])
+
+    assert view.citation_for(embedded) == "available_before_cutoff"
+
+
 def test_case_31_cross_format_covering_snapshot_selection():
     """Explicit regression test for case_31 defect.
     

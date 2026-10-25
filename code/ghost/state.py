@@ -48,6 +48,9 @@ class StateReconstructor:
         case_id = case["case_id"] if isinstance(case, dict) else case.case_id
         facts = view.all_for_resource(owned.system_id, owned.resource_id)
 
+        def citation(fact):
+            return view.citation_for(fact)
+
         # 1. Direct observations exist in admissible view
         if facts:
             # Sort chronologically
@@ -84,7 +87,7 @@ class StateReconstructor:
                     resource_id=owned.resource_id,
                     category="DATA_FLOW",
                     state=st,
-                    evidence_id=selected_fact.file_id,
+                    evidence_id=citation(selected_fact),
                     is_unresolved=is_fallback_obs,
                 )
 
@@ -97,7 +100,7 @@ class StateReconstructor:
                     resource_id=owned.resource_id,
                     category="BACKUP_ARCHIVE",
                     state=st,
-                    evidence_id=selected_fact.file_id,
+                    evidence_id=citation(selected_fact),
                     is_unresolved=is_fallback_obs,
                 )
 
@@ -108,7 +111,7 @@ class StateReconstructor:
                     resource_id=owned.resource_id,
                     category="SECURITY_AUDIT_LOG",
                     state=State.PRESENT,
-                    evidence_id=selected_fact.file_id,
+                    evidence_id=citation(selected_fact),
                     is_unresolved=is_fallback_obs,
                 )
 
@@ -124,7 +127,7 @@ class StateReconstructor:
                     resource_id=owned.resource_id,
                     category=owned.category,
                     state=st,
-                    evidence_id=selected_fact.file_id,
+                    evidence_id=citation(selected_fact),
                     is_unresolved=is_fallback_obs,
                 )
 
@@ -134,7 +137,7 @@ class StateReconstructor:
                 resource_id=owned.resource_id,
                 category=owned.category,
                 state=selected_fact.state,
-                evidence_id=selected_fact.file_id,
+                evidence_id=citation(selected_fact),
                 is_unresolved=is_fallback_obs,
             )
 

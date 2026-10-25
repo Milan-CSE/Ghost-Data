@@ -51,6 +51,7 @@ def test_json_bundle_adapter():
     assert f_acc.captured_at == "2026-01-29T12:00:00Z"
     assert f_acc.state == State.PRESENT
     assert f_acc.covers_system is True
+    assert f_acc.has_independent_timestamp is True
 
     # Tombstone extraction
     assert "tombstone_99" in res_ids
@@ -149,6 +150,7 @@ def test_log_jsonl_adapter():
 
     assert "account_101" in res_ids
     assert res_ids["account_101"].state == State.ABSENT  # result="miss", http_status=404
+    assert res_ids["account_101"].has_independent_timestamp is True
 
 
 def test_handover_txt_adapter():

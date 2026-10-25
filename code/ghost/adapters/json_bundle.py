@@ -115,6 +115,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                     phones=frozenset(phones),
                     store=f"{data_store}:{collection}",
                     covers_system=True,  # Snapshot bundles are authoritative full-collection snapshots
+                    has_independent_timestamp=bool(snap.get("captured_at")),
                 )
             )
 
