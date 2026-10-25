@@ -4,7 +4,13 @@ import hashlib
 import json
 import sqlite3
 from pathlib import Path
-from ghost.types import Fact, State
+from ghost.types import (
+    Fact,
+    State,
+    normalize_system_id,
+    infer_category,
+    extract_identifiers_from_obj,
+)
 
 
 def _sha256(text: str) -> str:
@@ -79,8 +85,8 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                     hashes.add(str(val).strip().lower())
 
             # Default attributes
-            system_id = "account_service"
-            category = "USER_PROFILE"
+            system_id = normalize_system_id(res_id)
+            category = infer_category(res_id, system_id, table)
             state = State.PRESENT
 
             # Table-specific logic
@@ -101,39 +107,60 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                 orig_system = get_val("origin_system")
                 coll_name = get_val("collection_name")
                 rec_json_str = get_val("record_json")
-                if orig_system:
-                    system_id = str(orig_system)
+                rec: dict = {}
 
                 if rec_json_str:
                     try:
                         rec = json.loads(rec_json_str)
-                        for k in ["user_id", "customer_reference", "subject_reference"]:
-                            if rec.get(k):
-                                user_ids.add(str(rec[k]))
-                        for k in ["email", "customer_email", "owner_email"]:
-                            if rec.get(k):
-                                em = str(rec[k]).strip()
-                                emails.add(em)
-                                emails.add(em.lower())
-                                hashes.add(_sha256(em))
-                        for k in ["phone", "owner_phone"]:
-                            if rec.get(k):
-                                phones.add(str(rec[k]).strip())
-                        for k in ["email_hash"]:
-                            if rec.get(k):
-                                hashes.add(str(rec[k]).strip().lower())
+                        em_set, hash_set, uid_set, ph_set = extract_identifiers_from_obj(rec)
+                        emails.update(em_set)
+                        hashes.update(hash_set)
+                        user_ids.update(uid_set)
+                        phones.update(ph_set)
                     except Exception:
                         pass
 
-                if coll_name == "security_audit_events":
-                    category = "SECURITY_AUDIT_LOG"
-                elif coll_name == "customer_profiles":
-                    category = "USER_PROFILE"
-                elif coll_name == "search_documents":
-                    category = "SEARCH_INDEX_ENTRY"
-                elif coll_name == "analytics_profiles":
-                    category = "ANALYTICS_PROFILE"
-                state = State.PRESENT
+                system_id = normalize_system_id(res_id, orig_system or system_id)
+                category = infer_category(res_id, system_id, coll_name)
+
+                if category == "ANALYTICS_PROFILE":
+                    if not emails and not user_ids and not hashes:
+                        state = State.ANONYMIZED
+                    else:
+                        state = State.PRESENT
+                elif category == "ACCOUNT_TOMBSTONE":
+                    if not emails and not hashes and not phones:
+                        state = State.REDACTED
+                    else:
+                        state = State.PRESENT
+                elif category == "BACKUP_ARCHIVE":
+                    restore_allowed = get_val("restore_allowed")
+                    if restore_allowed is None and isinstance(rec, dict):
+                        restore_allowed = rec.get("restore_allowed")
+                    is_allowed = (
+                        restore_allowed is True
+                        or restore_allowed == 1
+                        or str(restore_allowed).strip().lower() == "true"
+                    )
+                    state = State.ACTIVE if is_allowed else State.BLOCKED
+                elif category == "DATA_FLOW":
+                    enabled = get_val("enabled")
+                    if enabled is None and isinstance(rec, dict):
+                        enabled = rec.get("enabled")
+                    is_active = (
+                        enabled is True
+                        or enabled == 1
+                        or str(enabled).strip().lower() == "true"
+                    )
+                    state = State.ACTIVE if is_active else State.DISABLED
+                elif category == "USER_PROFILE":
+                    status = str(get_val("account_status") or (rec.get("account_status") if isinstance(rec, dict) else "")).upper()
+                    if status in {"DELETED", "ABSENT", "CLOSED"}:
+                        state = State.ABSENT
+                    else:
+                        state = State.PRESENT
+                else:
+                    state = State.PRESENT
 
             elif "search_documents" in table:
                 system_id = "search_service"
@@ -160,7 +187,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
 
             elif "connector_subscriptions" in table:
                 system_id = "integration_service"
-                category = "INTEGRATION_DATA_FLOW"
+                category = "DATA_FLOW"
                 enabled = get_val("enabled")
                 is_active = (
                     enabled is True

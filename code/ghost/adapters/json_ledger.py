@@ -3,11 +3,39 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from ghost.types import Fact, State
+from ghost.types import (
+    Fact,
+    State,
+    normalize_system_id,
+    infer_category,
+    extract_identifiers_from_obj,
+)
 
 
 def _sha256(text: str) -> str:
     return hashlib.sha256(text.strip().lower().encode("utf-8")).hexdigest()
+
+
+def _infer_system_id(resource_id: str, default: str = "account_service") -> str:
+    if resource_id.startswith("account_"):
+        return "account_service"
+    if resource_id.startswith("analytics_"):
+        return "analytics_platform"
+    if resource_id.startswith("audit_"):
+        return "security_service"
+    if resource_id.startswith("backup_"):
+        return "backup_service"
+    if resource_id.startswith("data_flow_"):
+        return "integration_service"
+    if resource_id.startswith("export_"):
+        return "export_service"
+    if resource_id.startswith("search_"):
+        return "search_service"
+    if resource_id.startswith("support_"):
+        return "support_platform"
+    if resource_id.startswith("tombstone_"):
+        return "identity_service"
+    return default
 
 
 def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
@@ -27,22 +55,16 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
         if not res_id:
             continue
 
-        system_id = rec.get("system") or rec.get("origin_system") or "account_service"
-        category = rec.get("record_type") or "USER_PROFILE"
+        raw_sys = rec.get("system") or rec.get("origin_system") or ""
+        system_id = normalize_system_id(res_id, raw_sys)
+        category = infer_category(res_id, system_id, rec.get("record_type") or "")
         rec_time = rec.get("recorded_at") or rec.get("captured_at") or captured_at
 
-        emails: set[str] = set()
-        hashes: set[str] = set()
-        user_ids: set[str] = set()
-        phones: set[str] = set()
-
-        ref = rec.get("subject_reference") or rec.get("owner_email") or rec.get("customer_email") or ""
-        if "@" in ref:
-            emails.add(ref.strip())
-            emails.add(ref.strip().lower())
-            hashes.add(_sha256(ref))
-        elif ref.startswith("user_"):
-            user_ids.add(ref.strip())
+        em_set, hash_set, uid_set, ph_set = extract_identifiers_from_obj(rec)
+        emails = set(em_set)
+        hashes = set(hash_set)
+        user_ids = set(uid_set)
+        phones = set(ph_set)
 
         res_str = str(rec.get("result", "")).upper()
         if res_str in {"NOT_FOUND", "DELETED", "ABSENT"}:
@@ -53,6 +75,10 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             state = State.DISABLED
         elif res_str in {"BLOCKED"}:
             state = State.BLOCKED
+        elif category == "ACCOUNT_TOMBSTONE":
+            state = State.REDACTED if (not emails and not hashes and not phones) else State.PRESENT
+        elif category == "ANALYTICS_PROFILE":
+            state = State.ANONYMIZED if (not emails and not hashes and not user_ids) else State.PRESENT
         else:
             state = State.PRESENT
 
@@ -89,23 +115,14 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                     continue
 
                 item_time = item.get("observed_at") or captured_at
-                emails = set()
-                hashes = set()
-                user_ids = set()
-                phones = set()
+                system_id = normalize_system_id(res_id, system_name)
+                category = infer_category(res_id, system_id, group_key)
 
-                for k in ["customer_reference", "user_id", "subject_reference"]:
-                    val = item.get(k)
-                    if val:
-                        user_ids.add(str(val).strip())
-
-                for k in ["email", "customer_email", "owner_email", "requester_email"]:
-                    val = item.get(k)
-                    if val:
-                        em = str(val).strip()
-                        emails.add(em)
-                        emails.add(em.lower())
-                        hashes.add(_sha256(em))
+                em_set, hash_set, uid_set, ph_set = extract_identifiers_from_obj(item)
+                emails = set(em_set)
+                hashes = set(hash_set)
+                user_ids = set(uid_set)
+                phones = set(ph_set)
 
                 # Handle profile object in profile_lookups
                 profile = item.get("profile")

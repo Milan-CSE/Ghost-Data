@@ -160,3 +160,77 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+## [2026-10-25T01:30:00Z] Implement Step 4: Ownership Linking, State Reconstruction, and Policy Compiler
+
+User Prompt (verbatim, secrets redacted):
+Step 3 is accepted. Implementation of Part A, Build Order Step 4 is authorized.
+
+Follow `planning/COMBINED_PLAN.md`, Part A, as the authoritative specification. Do not revalidate Phase 0 or reopen completed steps.
+
+### Scope: Step 4 only
+
+Implement ownership linking, state reconstruction, and the policy compiler.
+
+**1. Ownership linker — `code/ghost/ownership.py`**
+- Link resources to cases using grounded evidence and the established identity search surface.
+- Prioritize exact identifier matches, relational fields, and uniquely correlated traces.
+- Use activity only as corroboration, per Patch P6. Do not use timing alone as ownership proof.
+- Reject fuzzy name/email matches and planted decoys.
+- Permit legitimate shared resources where the schema and policy allow them.
+- Never force-link an unowned resource or add case-specific logic.
+- Record genuinely unresolved ownership links for review.
+
+**2. State reconstruction — `code/ghost/state.py`**
+- Reconstruct eligible state at each case's `audit_at`, using the Step 3 ledger and inclusive cutoff.
+- Distinguish authoritative full-store coverage from partial observations and lookup logs.
+- Handle primary, failover, read, regional, and reporting replicas according to their roles and timestamps.
+- Enforce the combined blueprint's P3 rule: when state is unresolved, use the last admissible observation as the required deterministic output fallback and record the uncertainty in `review/unresolved.md`. Do not invent absence or emit `UNRESOLVED` as an unsupported final serialized state.
+- Apply conjunctive `integration_service` and `backup_service` predicates. Missing or contradictory signals must not silently prove that a flow is active, a connector disabled, or a backup unblocked.
+- Test exact-cutoff inclusion, post-cutoff exclusion, replica drift, incomplete coverage, and state uncertainty.
+
+**3. Policy compiler — `code/ghost/policy.py`**
+- Compile all 15 rules from `dataset/deletion_rules.csv` using table-driven mappings, not per-case or category-specific conditional chains.
+- Preserve the exact action totals: 7 DELETE, 3 REDACT, 2 ANONYMIZE, and 3 RETAIN.
+- Ensure retained security audit and legal-hold records are never given prohibited deletion or redaction actions.
+- Implement clean versus dirty tombstones and the different policies for support attachments versus shared support messages.
+- Label the six rules not observed in canonical samples as `DERIVED DESIGN RULE — UNVERIFIED ON SAMPLES`.
+- Preserve complete-case verification and full relevant-resource verification for incomplete cases.
+
+### Integration and tests
+- Add focused tests in `tests/test_ownership.py`, `tests/test_state.py`, and `tests/test_policy.py`.
+- Use real evidence excerpts and synthetic fixtures where appropriate. Never embed canonical answers into production code.
+- Test decoy rejection, shared-resource handling, replica drift, temporal boundaries, coverage-based absence, process-state contradictions, retained records, and all 15 policy rules.
+- Run the full test suite once when Step 4's acceptance gate is ready. Fix failures as needed; do not repeatedly rerun checks that already pass unless a new change could affect them.
+- Keep `code/ghost/steps.py` and `validate.py` consistent with their existing contracts.
+- Update `code/docs/DECISIONS.md` and `log.txt` using actual runtime `tool=` and `model=` values. Commit coherent implementation work with descriptive messages.
+
+### Strict boundaries
+Do not begin Step 5's intent classification, live vision inference, or telemetry integration yet. Do not modify `AGENTS.md` or dataset files. Do not use case IDs to choose answers, add per-case exceptions, or start unrelated refactoring.
+
+### Stop condition
+Stop after ownership, state reconstruction, and policy compilation are implemented and their acceptance gates are evaluated.
+Return one consolidated report with files changed, test results, sample metrics, unresolved limitations, commit hashes, and final Git status. Do not begin Build Order Step 5 without my explicit authorization.
+
+Agent Response Summary:
+Implemented ownership linking (`code/ghost/ownership.py`), state reconstruction (`code/ghost/state.py`), and policy compilation (`code/ghost/policy.py`). Enhanced evidence adapters with universal recursive identifier extraction, trace correlation, and authoritative system normalization. Created 15 new unit tests across `tests/test_ownership.py`, `tests/test_state.py`, and `tests/test_policy.py`, bringing the full passing test suite to 58 tests. Evaluated sample metrics against canonical `sample_output.csv`, achieving 84.38% case accuracy, 86.39% step F1, and 0 ordering/policy errors prior to Step 5 vision extraction and intent classification.
+
+Actions:
+* write_file: code/ghost/ownership.py
+* write_file: code/ghost/state.py
+* write_file: code/ghost/policy.py
+* edit_file: code/ghost/types.py (ResourceState, normalize_system_id, infer_category, extract_identifiers_from_obj)
+* edit_file: code/ghost/adapters/{sqlite_dump.py,json_bundle.py,json_ledger.py,log_kv.py,log_syslog.py,log_jsonl.py}
+* write_file: tests/{test_ownership.py,test_state.py,test_policy.py}
+* write_file: review/unresolved.md
+* edit_file: code/docs/DECISIONS.md (D-13, D-14, D-15)
+* run_command: python -m pytest
+* write_file: log.txt
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none

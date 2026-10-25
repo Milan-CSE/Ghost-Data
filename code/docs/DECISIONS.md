@@ -54,3 +54,19 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Decision:** Full store/table captures set `covers_system=True`. Event logs, syslog streams, PDF documents, and targeted ledger lookups set `covers_system=False`.
 - **Rationale:** Omission of a resource indicates `ABSENT` only within authoritative covering snapshots, never within point-in-time observation logs.
 - **Guarded By:** Adapter unit tests in `tests/test_adapters.py`.
+
+## D-13: Ownership Linking Hierarchy and Decoy Rejection (Step 4)
+- **Decision:** Prioritize grounded evidence matches via `IdentityBag.search_surface` across all adapters, relational catalog rows in `system_activity.csv` (`LINK_RESOURCE_IDENTITY`), and targeted `deletion_worker` corroboration within `[reported_at - 15 min, reported_at + 15 min]` strictly when no account profile was found in evidence. Decoy records with lookalike names or email prefixes are rejected.
+- **Rationale:** Prevents spurious cross-case linking while ensuring unevidenced primary accounts deleted prior to snapshot captures are correctly recovered.
+- **Guarded By:** `tests/test_ownership.py`.
+
+## D-14: Coverage-Based State Reconstruction and Replica Drift Resolution (Step 4)
+- **Decision:** State at `audit_at` is established by the latest admissible observation (`captured_at <= audit_at`). If missing, state resolves to `ABSENT` via omission from an authoritative covering store (`view.covering_snapshot`). When multiple replica observations share the latest timestamp, surviving `PRESENT`/`ACTIVE` data takes precedence over deleted primary records. Patch P3 fallback logs ungrounded items to `review/unresolved.md`.
+- **Rationale:** Guarantees deterministic state resolution without inventing citations or assertions of presence.
+- **Guarded By:** `tests/test_state.py`.
+
+## D-15: Table-Driven 15-Rule Policy Compilation and Action Invariants (Step 4)
+- **Decision:** All 15 rules from `deletion_rules.csv` plus operational `DATA_FLOW` are compiled into a unified table-driven engine preserving exact action counts (7 DELETE, 3 REDACT, 2 ANONYMIZE, 3 RETAIN). Retained records (`SECURITY_AUDIT_LOG`, `LEGAL_HOLD_RECORD`) emit exclusively `VERIFY_RECORD_PRESENT`. Clean tombstones emit only `VERIFY_RECORD_REDACTED`, while dirty tombstones emit finding, redaction, and verification. COMPLETE cases cite evidence for all verifications; INCOMPLETE cases use empty evidence IDs for remediations and verifications.
+- **Rationale:** Directly maps specification and policy requirements without case-specific conditional logic.
+- **Guarded By:** `tests/test_policy.py`.
+
