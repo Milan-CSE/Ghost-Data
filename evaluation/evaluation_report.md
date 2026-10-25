@@ -8,12 +8,12 @@ The Ghost Data Deletion-Audit Agent was evaluated against the 32 canonical sampl
 |---|---|---|
 | **Case-Level Deletion Status Accuracy** | **100.00% (32/32)** | 100.00% |
 | **Row Exact Match Rate** | **28.12% (9/32)** | Baseline |
-| **Step Precision** | **98.14%** (158/161 predicted steps matched) | > 95% |
+| **Step Precision** | **100.00%** (158/158 steps valid) | > 95% |
 | **Step Recall** | **81.87%** (158/193 ground truth steps) | > 80% |
-| **Step F1 Score** | **89.27%** | > 85% |
+| **Step F1 Score** | **90.03%** | > 85% |
 | **Sequence Exact Match** | **28.12% (9/32)** | Baseline |
-| **Sequence Mean LCS Ratio** | **78.59%** | > 75% |
-| **Field-Level Accuracy** | **80.61%** (158/196 across all fields) | > 80% |
+| **Sequence Mean LCS Ratio** | **79.40%** | > 75% |
+| **Field-Level Accuracy** | **81.87%** (158/193 across all fields) | > 80% |
 
 ### Error Taxonomy Breakdown
 - **Intent Errors:** 0 (100% agreement on deletion authorization)
@@ -162,9 +162,9 @@ Per `AGENTS.md` §6.8 and `COMBINED_PLAN.md` Part A Patch P7, eight synthetic ev
    - *Issue:* In `case_17` (requested August 2026), an `ACCOUNT_TOMBSTONE` observation from March 2026 (`evidence_42`, generated during a prior request `case_46`) was linked to the case, causing an unexpected tombstone verification step and a fallback.
    - *Fix:* Added an invariant guard in `code/ghost/ownership.py`: an `ACCOUNT_TOMBSTONE` observation cannot predate the current request intake (`fact.captured_at >= requested_at`). This immediately elevated `case_17` to a 100% byte-exact ground-truth match (raising exact match rate to 28.12% / 9/32) and eliminated all fallbacks across canonical samples.
 
-5. **Rare Evidence Signatures & Robust Parsers:**
-   - *Issue:* Certain documents contained non-standard IDs or table structures: customer statement references (`NST-...`) in `evidence_18`, row-by-row disputed order entries in legal retention register `evidence_27`, and schema-only SQL dumps (`evidence_90`).
-   - *Fix:* Enhanced `pdf_text.py` with multi-column table regex and statement ID extraction, while ensuring schema-only files produce zero spurious facts.
+5. **Evidence Namespace Integrity & Order Number Exclusion:**
+   - *Issue:* An experiment matching order IDs (`ORD-xxxx`) in PDF documents caused transactional order references in customer support attachments (`evidence_58`) to be erroneously parsed as platform resources, generating three spurious steps in `case_07` and dropping step precision to 98.14%.
+   - *Fix:* Restricted PDF resource extraction strictly to authoritative platform resource namespaces (`support_\d+`, `account_\d+`, `audit_record_\d+`, `export_\d+`, `statement_\d+`), excluding transactional order and statement references. Validated via regression test `test_pdf_support_attachment_order_number_exclusion`, restoring 100.00% step precision (158/158).
 
 6. **Ordering Invariant & Topological Verification:**
    - *Issue:* Potential ordering ambiguities between process flow remediation (`DISABLE_DATA_FLOW`, `BLOCK_RESTORE`) and resource remediation (`DELETE_RECORD`, `REDACT_RECORD`).

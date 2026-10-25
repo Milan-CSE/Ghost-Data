@@ -514,3 +514,51 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+
+## 2026-10-25T09:38:00+05:30 Step 6 Acceptance Check: Isolate Precision Drift & Restore 100% Precision
+
+User Prompt (verbatim, secrets redacted):
+Perform one narrow Step 6 acceptance check. Do not reopen the broader diagnosis or redesign the project.
+
+The latest benchmark reports:
+- Exact match: 9/32
+- Precision: 98.14%
+- Recall: 81.87%
+- Predicted steps: 161
+- Expected steps: 193
+- Matched steps: 158
+
+Before Step 5, the reported baseline was 158 predicted steps with 100% precision.
+
+1. Inspect the diff for commit `13877e5` and identify every changed implementation file.
+2. Run the canonical sample comparison once and list the exact three predicted steps that do not match the expected steps, including their case IDs and root causes.
+3. Determine whether these are genuine new false positives, stale output, or a benchmark/reporting inconsistency. Do not assume the cause.
+4. If a genuine defect exists, make only the smallest generalizable correction and add a regression test. Preserve P3, P6, lifecycle causality, evidence cutoffs, and all existing tests.
+5. Run the full pytest suite and canonical scorer once after any correction. If no defect is established, make no code changes and explain the result.
+
+Preserve all untracked files. Do not modify datasets or AGENTS.md. Update log.txt accurately, commit only intentional changes, and confirm git status is clean.
+
+Stop after this check. Do not begin Step 7 until I authorize it.
+
+Agent Response Summary:
+Inspected commit `13877e5` and isolated the precision drop from 100.00% to 98.14% to three false-positive steps in `case_07` (FINDING, REMEDIATION, VERIFICATION on `ORD-20264827`). Determined the root cause was an over-broad regex in `code/ghost/adapters/pdf_text.py` matching order IDs (`ORD-\d+`) inside customer support attachments (`evidence_58`), which erroneously treated transactional order numbers as platform resource IDs. Reverted the regex to authoritative platform resource namespaces and added a regression test in `tests/test_adapters.py::test_pdf_support_attachment_order_number_exclusion`. Verified that all 90 pytest tests pass and the canonical sample benchmark returns 100.00% step precision (158/158), 81.87% recall, and 28.12% exact match (9/32).
+
+Actions:
+* git show: inspected commit `13877e5` diff
+* run_command: compared predicted steps vs ground truth to identify `ORD-20264827` in `case_07`
+* git checkout 7040dd5 -- code/ghost/adapters/pdf_text.py: restored clean platform resource regex
+* edit_file: tests/test_adapters.py (added test_pdf_support_attachment_order_number_exclusion)
+* edit_file: evaluation/evaluation_report.md (updated metrics table and discovery item 5)
+* edit_file: code/docs/DECISIONS.md (updated D-18 item 2)
+* run_command: pytest (90/90 tests passed in 1.95s)
+* run_command: python scripts/test_pipeline_samples.py (100% precision verified)
+* write_file: log.txt (appended turn entry)
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none

@@ -177,6 +177,19 @@ def test_pdf_text_adapter():
     assert any("support" in f.system_id for f in facts)
 
 
+def test_pdf_support_attachment_order_number_exclusion():
+    """Regression test: PDF adapter must extract valid platform resources (support_001)
+
+    and must NOT treat transactional order numbers (ORD-xxxx) as resources.
+    """
+    real_pdf = Path("dataset/evidence/documents/delivery_correction_attachment.pdf")
+    if real_pdf.exists():
+        facts = pdf_text.parse(real_pdf, file_id="evidence_58", captured_at="2026-09-12T07:30:00Z")
+        res_ids = {f.resource_id for f in facts}
+        assert "support_001" in res_ids
+        assert not any(r.startswith("ORD-") for r in res_ids), f"Unexpected ORD- resources extracted: {res_ids}"
+
+
 def test_png_vision_adapter_contract():
     """Verify PNG vision adapter parses structured payload without requiring live credentials."""
     mock_payload = [
