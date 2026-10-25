@@ -661,3 +661,133 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+## [2026-10-25T00:00:00+05:30] SESSION START
+
+tool=Codex desktop
+model=GPT-6
+Repo Root: D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+Branch: main
+Worktree: main
+Parent Agent: none
+Language: custom:PowerShell
+Time Remaining: not configured
+## [2026-10-25T10:15:23+05:30] SESSION START TIMESTAMP CORRECTION
+
+The session-start entry above was appended at turn start with a placeholder time. This append-only correction records its actual start time as 2026-10-25T09:57:00+05:30; prior log text is preserved.
+
+## [2026-10-25T10:15:23+05:30] Canonical benchmark optimization pass
+
+User Prompt (verbatim, secrets redacted):
+# Files pasted by the user:
+
+## "# Canonical Benchmark Optimization — Target 30/32 Exact Matches Work on the exi…": [attachment path redacted]
+
+Pasted text contains the user's request.
+
+## My request:
+
+Agent instruction: Use the attached canonical benchmark optimization plan. Verify the actual baseline, investigate each named error family, add supported regressions, measure after each fix, preserve strict ownership and temporal rules, do not package or submit, and report the remaining evidence-limited cases.
+
+Agent Response Summary:
+Confirmed the Step 7 baseline commit and measured the existing 32-case canonical score at 9/32 exact matches. Implemented a narrow rule for explicit per-record timestamps in JSON snapshot bundles and JSONL logs, with cutoff and citation regressions; the score is now 11/32, while precision remains 100%. Inspected the named account, analytics, and screenshot evidence and left unsupported ownership links unresolved; committed the timestamp fix as 4cf0c8ae8d0d8d913dc6d03e743f501d1c5fc0db. Packaging and submission remain on hold as requested.
+
+Actions:
+* Read `planning/COMBINED_PLAN.md`, participant-facing evidence, code, existing diagnostics, and current `git` history/status.
+* Ran baseline and final canonical sample scorer; ran the focused gates and the full suite (`93 passed`).
+* Updated timestamp handling in `code/ghost/types.py`, `code/ghost/ledger.py`, `code/ghost/state.py`, `code/ghost/adapters/json_bundle.py`, and `code/ghost/adapters/log_jsonl.py`.
+* Added regressions in `tests/test_ledger.py` and `tests/test_adapters.py`; recorded measurements in `code/docs/DECISIONS.md`.
+* Created commit `4cf0c8ae8d0d8d913dc6d03e743f501d1c5fc0db`; preserved the pre-existing untracked `runs/` telemetry folders.
+
+Context:
+tool=Codex desktop
+model=GPT-6
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
+## [2026-10-25T10:15:44+05:30] Log detail correction
+
+The prior timestamp-correction note gave an unverified session-start time; the exact start time is unavailable and that value should not be relied on. The untracked `runs/` telemetry folders were generated during this optimization pass (they were not present in the initial status) and have been preserved without modification or cleanup.
+## [2026-10-25T10:19:48+05:30] SESSION START
+
+tool=Codex desktop
+model=GPT-6
+Repo Root: D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+Branch: main
+Worktree: main
+Parent Agent: none
+Language: custom:PowerShell
+Time Remaining: not configured
+## [2026-10-25T10:26:15+05:30] Ownership optimization evidence pass
+
+User Prompt (verbatim, secrets redacted):
+# Ownership Optimization — Continue Toward 30/32
+
+Continue from the current repository state and commit `4cf0c8a`.
+
+The nested-timestamp correction is complete. Do not redo it or modify it without evidence of a regression.
+
+Current reported benchmark:
+
+- Exact match: 11/32
+- Step precision: 100%
+- Step recall: 85.49%
+- Step F1: 92.18%
+- Tests: 93 passed
+- Remaining missing steps: 28, predominantly ownership/identity gaps
+
+## Priority 1 — Primary account resources
+
+Investigate the 19 missing primary-account verification steps documented in the latest evaluation.
+
+Find generalizable ownership relationships using:
+
+- Exact identifiers in admissible evidence
+- Explicit resource-schema relationships
+- Unique lookup-to-result trace correlations
+- Independently grounded schema information, with activity used only as corroboration
+
+Preserve P6's exact `[requested_at, reported_at]` activity window. Do not infer ownership from activity alone, widen the window, or force one-to-one assignments across concurrent requests.
+
+## Priority 2 — Anonymized analytics
+
+Investigate the seven missing analytics verification steps. Link an anonymized resource only when independent evidence establishes its relationship to the subject. Do not use timestamp overlap as the sole linking signal.
+
+## Priority 3 — Conflicting evidence claims
+
+Reconcile the reported evidence for:
+
+- `case_04` / `account_004`
+- `case_18` / `audit_record_6645`
+- `case_20` / `audit_record_5569`
+
+Inspect actual participant-facing evidence, image extractions, timestamps, identifiers, and provenance. Determine exactly what is and is not established. Do not treat canonical output as runtime evidence.
+
+## Measurement
+
+After each independently justified fix:
+
+1. Add focused regression tests.
+2. Run relevant tests and then the canonical scorer.
+3. Record before-and-after exact-match, precision, recall, F1 and error categories.
+4. Keep only changes that preserve precision and comply with COMBINED_PLAN.md Part A.
+
+Preserve all existing fixes and tests. No case-specific branches, ground-truth leakage, fabricated ownership, fabricated citations, or modifications to datasets or AGENTS.md.
+
+Keep Step 8 on hold. Stop when no further evidence-grounded improvements are available and report the remaining mismatch cases, their exact causes, the final benchmark and Git status.
+
+Agent Response Summary:
+Inspected participant-facing evidence and added a general parser/linker for explicit `source_resource_id` relationships, guarded against shared source records and conflicting target identity evidence. This grounded the account resource in one additional sample without changing P6's interval or the nested-timestamp correction. No admissible independent links were found for the other missing accounts, anonymized analytics, or disputed audit records; held them unresolved.
+
+Actions:
+* Updated `code/ghost/types.py`, `code/ghost/adapters/sqlite_dump.py`, `code/ghost/ledger.py`, and `code/ghost/ownership.py` to preserve and consume explicit resource foreign keys.
+* Added three focused ownership regressions in `tests/test_ownership.py`; recorded D-21 and measurements in `code/docs/DECISIONS.md`.
+* Ran focused ownership tests (4 passed), full suite (96 passed), canonical scorer, and `git diff --check`.
+
+Context:
+tool=Codex desktop
+model=GPT-6
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none

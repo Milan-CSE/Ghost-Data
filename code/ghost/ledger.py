@@ -180,6 +180,7 @@ class Ledger:
                                 covers_system=f.covers_system,
                                 file_captured_at=captured_at,
                                 has_independent_timestamp=f.has_independent_timestamp,
+                                related_resource_ids=f.related_resource_ids,
                             )
                             self._facts.append(f_with_fc)
                         else:

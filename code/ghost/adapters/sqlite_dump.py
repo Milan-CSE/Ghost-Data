@@ -10,6 +10,7 @@ from ghost.types import (
     normalize_system_id,
     infer_category,
     extract_identifiers_from_obj,
+    extract_resource_relationships,
 )
 
 
@@ -60,6 +61,10 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             hashes: set[str] = set()
             user_ids: set[str] = set()
             phones: set[str] = set()
+            related_resource_ids = set()
+
+            if "source_resource_id" in col_idx and get_val("source_resource_id"):
+                related_resource_ids.add(str(get_val("source_resource_id")).strip())
 
             for uid_col in ["user_id", "customer_reference", "subject_reference"]:
                 val = get_val(uid_col)
@@ -117,6 +122,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                         hashes.update(hash_set)
                         user_ids.update(uid_set)
                         phones.update(ph_set)
+                        related_resource_ids.update(extract_resource_relationships(rec))
                     except Exception:
                         pass
 
@@ -226,6 +232,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                     phones=frozenset(phones),
                     store=table,
                     covers_system=True,  # Full table dump is authoritative covering store
+                    related_resource_ids=frozenset(related_resource_ids),
                 )
             )
 

@@ -1,8 +1,10 @@
 """Focused unit tests for OwnershipLinker (ownership.py)."""
+import hashlib
 import pytest
 from ghost.types import Fact, State, IdentityBag, Case, OwnedResource
 from ghost.ledger import View
 from ghost.ownership import OwnershipLinker
+from ghost.adapters import sqlite_dump
 
 
 def test_ownership_exact_identifier_match(tmp_path):
@@ -220,6 +222,92 @@ def test_ownership_activity_alone_does_not_establish_primary_ownership(tmp_path)
     owned = linker.link(case, bag, view)
     # Activity alone must not establish ownership
     assert len(owned) == 0
+
+
+def test_source_resource_schema_links_primary_account_and_activity_only_corroborates(tmp_path):
+    """A subject-matched row's explicit source_resource_id grounds its source account."""
+    sql = tmp_path / "search.sql"
+    sql.write_text(
+        "CREATE TABLE search_documents_primary (resource_id TEXT, email TEXT, source_resource_id TEXT);\n"
+        "INSERT INTO search_documents_primary VALUES ('search_1', 'user@example.com', 'account_1');\n",
+        encoding="utf-8",
+    )
+    fact = sqlite_dump.parse(sql, "ev_search", "2026-09-01T12:00:00Z")[0]
+    assert fact.related_resource_ids == frozenset({"account_1"})
+
+    act_file = tmp_path / "act.csv"
+    act_file.write_text(
+        "activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n"
+        "act_account,2026-08-20T12:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_1,SUCCESS,Target: account_1\n",
+        encoding="utf-8",
+    )
+    linker = OwnershipLinker(act_file)
+    coverage = Fact(
+        file_id="ev_account_snapshot", captured_at="2026-09-02T00:00:00Z",
+        system_id="account_service", resource_id="account_placeholder",
+        category="USER_PROFILE", state=State.PRESENT, covers_system=True,
+    )
+    view = View("2026-09-03T00:00:00Z", [fact, coverage])
+    email_hash = hashlib.sha256(b"user@example.com").hexdigest()
+    bag = IdentityBag("user_1", {"email": "user@example.com"}, frozenset({"user_1", "user@example.com", email_hash}))
+    case = Case("case_rel_account", "user@example.com", "2026-08-19T00:00:00Z", "COMPLETE", "2026-08-21T00:00:00Z", "2026-09-03T00:00:00Z", "Delete my account")
+
+    owned = linker.link(case, bag, view)
+    linked = next(r for r in owned if r.resource_id == "account_1")
+    assert linked.system_id == "account_service"
+    assert linked.signal == "relational"
+    assert linked.corroborated_by == ("act_account",)
+
+
+def test_source_resource_relationship_rejects_shared_ambiguous_subjects(tmp_path):
+    """A shared lookup record cannot assign its source account to concurrent subjects."""
+    act_file = tmp_path / "act.csv"
+    act_file.write_text(
+        "activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n"
+        "act_a,2026-08-20T12:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_shared,SUCCESS,Target: account_shared\n"
+        "act_b,2026-08-20T12:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_shared,SUCCESS,Target: account_shared\n",
+        encoding="utf-8",
+    )
+    linker = OwnershipLinker(act_file)
+    shared = Fact(
+        file_id="ev_shared", captured_at="2026-08-19T00:00:00Z",
+        system_id="search_service", resource_id="search_shared",
+        category="SEARCH_INDEX_ENTRY", state=State.PRESENT,
+        emails=frozenset({"a@example.com", "b@example.com"}),
+        related_resource_ids=frozenset({"account_shared"}),
+    )
+    view = View("2026-09-03T00:00:00Z", [shared])
+    cases = [
+        (Case("case_a", "a@example.com", "2026-08-19T00:00:00Z", "COMPLETE", "2026-08-21T00:00:00Z", "2026-09-03T00:00:00Z", "Delete"), IdentityBag("user_a", {}, frozenset({"user_a", "a@example.com"}))),
+        (Case("case_b", "b@example.com", "2026-08-19T00:00:00Z", "COMPLETE", "2026-08-21T00:00:00Z", "2026-09-03T00:00:00Z", "Delete"), IdentityBag("user_b", {}, frozenset({"user_b", "b@example.com"}))),
+    ]
+
+    for case, bag in cases:
+        assert all(r.resource_id != "account_shared" for r in linker.link(case, bag, view))
+
+
+def test_source_resource_relationship_rejects_account_owned_by_another_user(tmp_path):
+    act_file = tmp_path / "act.csv"
+    act_file.write_text("activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n", encoding="utf-8")
+    linker = OwnershipLinker(act_file)
+    search = Fact(
+        file_id="ev_search", captured_at="2026-08-19T00:00:00Z",
+        system_id="search_service", resource_id="search_1",
+        category="SEARCH_INDEX_ENTRY", state=State.PRESENT,
+        emails=frozenset({"user@example.com"}),
+        related_resource_ids=frozenset({"account_1"}),
+    )
+    other_owner = Fact(
+        file_id="ev_account", captured_at="2026-08-19T00:00:00Z",
+        system_id="account_service", resource_id="account_1",
+        category="USER_PROFILE", state=State.PRESENT,
+        emails=frozenset({"other@example.com"}),
+    )
+    view = View("2026-09-03T00:00:00Z", [search, other_owner])
+    bag = IdentityBag("user_1", {}, frozenset({"user_1", "user@example.com"}))
+    case = Case("case_owner", "user@example.com", "2026-08-18T00:00:00Z", "COMPLETE", "2026-08-20T00:00:00Z", "2026-09-03T00:00:00Z", "Delete my data")
+
+    assert all(r.resource_id != "account_1" for r in linker.link(case, bag, view))
 
 
 def test_ownership_preserves_legitimate_shared_resources(tmp_path):

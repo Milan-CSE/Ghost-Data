@@ -60,6 +60,7 @@ class Fact:
     covers_system: bool = False  # True only for authoritative full-table/bundle observations
     file_captured_at: str = ""  # Manifest captured_at of the evidence file
     has_independent_timestamp: bool = False  # Explicit record time within a later container
+    related_resource_ids: frozenset[str] = field(default_factory=frozenset)
 
 
 VALID_SYSTEMS: frozenset[str] = frozenset({
@@ -296,5 +297,25 @@ def extract_identifiers_from_obj(obj: Any) -> tuple[set[str], set[str], set[str]
 
     traverse(obj)
     return emails, hashes, user_ids, phones
+
+
+def extract_resource_relationships(obj: Any) -> set[str]:
+    """Extract explicit source-resource foreign keys from structured evidence."""
+    relationships: set[str] = set()
+
+    def traverse(item: Any):
+        if isinstance(item, dict):
+            for key, value in item.items():
+                if str(key).lower() == "source_resource_id" and isinstance(value, str):
+                    related_id = value.strip()
+                    if related_id:
+                        relationships.add(related_id)
+                traverse(value)
+        elif isinstance(item, (list, tuple, set)):
+            for value in item:
+                traverse(value)
+
+    traverse(obj)
+    return relationships
 
 

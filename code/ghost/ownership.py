@@ -72,7 +72,51 @@ class OwnershipLinker:
                         corroborated_by=(),
                     )
 
-        # 2. Relational Signals from Activity Log (LINK_RESOURCE_IDENTITY)
+        # 2. Explicit resource-schema relationships. A source-resource field on
+        # a record already linked by the subject's identifiers can ground its
+        # source record. Reject shared records and target records whose latest
+        # admissible identity evidence names another subject.
+        search_surface = {value.strip().lower() for value in bag.search_surface if value}
+        for source in list(candidates.values()):
+            for fact in view.all_for_resource(source.system_id, source.resource_id):
+                identifiers = {
+                    value.strip().lower()
+                    for value in (fact.emails | fact.hashes | fact.user_ids | fact.phones)
+                    if value
+                }
+                if not identifiers or not identifiers.issubset(search_surface):
+                    continue
+                for related_id in fact.related_resource_ids:
+                    related_sys = normalize_system_id(related_id)
+                    if related_sys not in VALID_SYSTEMS:
+                        continue
+                    related_facts = view.all_for_resource(related_sys, related_id)
+                    if not related_facts and not view.covering_snapshot(related_sys):
+                        continue
+                    if related_facts:
+                        latest_time = max(target.captured_at for target in related_facts)
+                        latest_facts = [target for target in related_facts if target.captured_at == latest_time]
+                        target_identities = [
+                            {
+                                value.strip().lower()
+                                for value in (target.emails | target.hashes | target.user_ids | target.phones)
+                                if value
+                            }
+                            for target in latest_facts
+                        ]
+                        if any(values and not values.issubset(search_surface) for values in target_identities):
+                            continue
+                    key = (related_sys, related_id)
+                    if key not in candidates:
+                        candidates[key] = OwnedResource(
+                            system_id=related_sys,
+                            resource_id=related_id,
+                            category=infer_category(related_id, related_sys),
+                            signal="relational",
+                            corroborated_by=(),
+                        )
+
+        # 3. Relational Signals from Activity Log (LINK_RESOURCE_IDENTITY)
         for act in self._activities:
             if act.get("event_type") == "LINK_RESOURCE_IDENTITY":
                 event_time = act.get("event_time", "")
@@ -115,7 +159,7 @@ class OwnershipLinker:
                                 corroborated_by=corrob,
                             )
 
-        # 3. Corroborating Activity Signals (Patch P6)
+        # 4. Corroborating Activity Signals (Patch P6)
         # Activity alone must not establish primary ownership.
         # Check system_activity for deletion_worker events strictly within [requested_at, reported_at].
         if requested_at and reported_at:
@@ -138,7 +182,7 @@ class OwnershipLinker:
                         corroborated_by=tuple(corrobs),
                     )
 
-        # 4. Refine resource category from deletion worker activity if available
+        # 5. Refine resource category from deletion worker activity if available
         for (sys_id, res_id), cand in list(candidates.items()):
             worker_acts = [
                 a for a in self._activities
@@ -183,7 +227,7 @@ class OwnershipLinker:
                             corroborated_by=cand.corroborated_by,
                         )
 
-        # 5. Primary Account Profile Disambiguation:
+        # 6. Primary Account Profile Disambiguation:
         # If multiple account_service resources were grounded, prefer the one with activity corroboration
         account_keys = [k for k in candidates if k[0] == "account_service"]
         if len(account_keys) > 1:
