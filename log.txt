@@ -562,3 +562,34 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+
+
+## 2026-10-25T09:42:42+05:30 Read-Only Regression Check: PDF Resource Pattern Namespace Integrity
+
+User Prompt (verbatim, secrets redacted):
+Step 6 precision restoration looks good. Before starting Step 7, perform one narrow, read-only regression check.
+
+Inspect the final `RESOURCE_ID_PATTERN` in `code/ghost/adapters/pdf_text.py` and compare it with the resource namespaces defined in `COMBINED_PLAN.md` and the actual four PDF evidence files.
+
+Verify whether the current pattern excludes any legitimate platform resource identifiers that actually occur in those PDFs. Ensure `ORD-...` business order numbers are not emitted as platform resources.
+
+Do not change code unless an actual regression is demonstrated. If a fix is necessary, preserve every legitimate resource pattern and add a focused regression test. Run only the relevant adapter tests, plus the full suite if code changes.
+
+Preserve untracked files. Do not modify datasets or AGENTS.md. Do not reopen the broader diagnosis, chase the 32/32 score, or begin Step 7 during this check. Report the result and confirm Git status.
+
+Agent Response Summary:
+Performed a read-only regression audit of `RESOURCE_ID_PATTERN` in `code/ghost/adapters/pdf_text.py` against `COMBINED_PLAN.md` and the text of all four PDF evidence files. Confirmed that the current regex pattern matches all legitimate platform resources present in the PDFs (`support_001` in `evidence_58` and `audit_record_003` in `evidence_55`) without excluding any valid resource identifiers. Verified across all 518 evaluation requests that exactly zero `ORD-...` business order numbers are emitted as platform resources, and all 11 adapter unit tests pass cleanly.
+
+Actions:
+* run_command: extracted text from all 4 PDF evidence files and inspected token occurrences
+* run_command: searched for `ORD-` resource emissions across all 518 cases (confirmed 0 emitted)
+* run_command: pytest tests/test_adapters.py (11/11 passed in 0.53s)
+* write_file: log.txt (appended turn entry)
+
+Context:
+tool=Antigravity
+model=gemini-3.8-flash-control
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
