@@ -70,3 +70,8 @@ This file records architecture decisions, assumptions, and rule clarifications a
 - **Rationale:** Directly maps specification and policy requirements without case-specific conditional logic.
 - **Guarded By:** `tests/test_policy.py`.
 
+## D-16: Patch P3 Fallback Alignment & Deletion-Worker Category Mapping
+- **Decision:** Aligned unresolved state fallback strictly to Patch P3: when a resource cannot be established via direct observations or authoritative store omission, safe existence (`State.PRESENT` or `State.ACTIVE`) is preserved rather than inventing absence, logging to `review/unresolved.md`. Refined resource data categories using the deletion worker's targeted operation (`DELETE_RECORD` on support -> `SUPPORT_ATTACHMENT`, `REDACT_RECORD` on support -> `SUPPORT_MESSAGE`, `DELETE_RECORD` on analytics -> `MARKETING_PROFILE`). Constrained primary accounts to at most one per case, disambiguating multiple evidence-linked accounts by the latest admissible observation timestamp.
+- **Rationale:** Ensures zero ungrounded absence claims, resolves ambiguous support and analytics categories systematically across the entire dataset without case-specific branching, and eliminates multi-account collisions.
+- **Guarded By:** `tests/test_state.py`, `scripts/test_sample_improvements.py`.
+

@@ -51,7 +51,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
 
     # 1. Parse top-level 'records' list
     for rec in data.get("records", []):
-        res_id = rec.get("resource_id") or ""
+        res_id = str(rec.get("resource_id") or "").strip(' \t\n\r"\'\\')
         if not res_id:
             continue
 
@@ -75,8 +75,8 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             state = State.DISABLED
         elif res_str in {"BLOCKED"}:
             state = State.BLOCKED
-        elif category == "ACCOUNT_TOMBSTONE":
-            state = State.REDACTED if (not emails and not hashes and not phones) else State.PRESENT
+        elif category in {"ACCOUNT_TOMBSTONE", "SUPPORT_MESSAGE", "EMAIL_DELIVERY_LOG"}:
+            state = State.REDACTED if (not emails and not hashes and not phones and not user_ids) else State.PRESENT
         elif category == "ANALYTICS_PROFILE":
             state = State.ANONYMIZED if (not emails and not hashes and not user_ids) else State.PRESENT
         else:
@@ -180,7 +180,10 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
 
                 elif system_name == "support_platform":
                     category = "SUPPORT_MESSAGE"
-                    state = State.PRESENT
+                    if not emails and not user_ids and not phones and not hashes:
+                        state = State.REDACTED
+                    else:
+                        state = State.PRESENT
 
                 elif system_name == "export_service":
                     category = "USER_EXPORT"

@@ -61,7 +61,11 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             v = match.group(2) if match.group(2) is not None else match.group(3)
             kv[k] = v
 
-        res_id = kv.get("resource_id") or ""
+        ev = kv.get("event", "").lower()
+        if ev.endswith("_started") or ev.endswith("_start"):
+            continue
+
+        res_id = (kv.get("resource_id") or "").strip(' \t\n\r"\'\\')
         if not res_id:
             continue
 
@@ -113,9 +117,11 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             state = State.ACTIVE if is_res else State.BLOCKED
             category = "BACKUP_ARCHIVE"
             system_id = "backup_service"
-        elif system_id == "analytics_platform" and not emails and not user_ids:
+        elif system_id == "analytics_platform" and not emails and not user_ids and not hashes:
             state = State.ANONYMIZED
             category = "ANALYTICS_PROFILE"
+        elif (system_id == "support_platform" or category in {"SUPPORT_MESSAGE", "ACCOUNT_TOMBSTONE"}) and not emails and not user_ids and not phones and not hashes:
+            state = State.REDACTED
         else:
             state = State.PRESENT
 

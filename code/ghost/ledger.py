@@ -13,8 +13,11 @@ class View:
 
     def __init__(self, audit_at: str, facts: list[Fact]):
         self.audit_at = audit_at
-        # Strict inclusive temporal boundary: captured_at <= audit_at
-        self.facts = [f for f in facts if f.captured_at <= audit_at]
+        # Strict inclusive temporal boundary: captured_at <= audit_at AND file_captured_at <= audit_at
+        self.facts = [
+            f for f in facts
+            if f.captured_at <= audit_at and (not f.file_captured_at or f.file_captured_at <= audit_at)
+        ]
 
         self._by_resource: dict[tuple[str, str], list[Fact]] = defaultdict(list)
         self._by_identifier: dict[str, list[Fact]] = defaultdict(list)
@@ -133,7 +136,26 @@ class Ledger:
                 file_path = base_dir / file_rel
                 if file_path.exists():
                     facts = parse_evidence_file(file_path, file_id=file_id, captured_at=captured_at)
-                    self._facts.extend(facts)
+                    for f in facts:
+                        if not f.file_captured_at:
+                            f_with_fc = Fact(
+                                file_id=f.file_id,
+                                captured_at=f.captured_at,
+                                system_id=f.system_id,
+                                resource_id=f.resource_id,
+                                category=f.category,
+                                state=f.state,
+                                emails=f.emails,
+                                hashes=f.hashes,
+                                user_ids=f.user_ids,
+                                phones=f.phones,
+                                store=f.store,
+                                covers_system=f.covers_system,
+                                file_captured_at=captured_at,
+                            )
+                            self._facts.append(f_with_fc)
+                        else:
+                            self._facts.append(f)
                     new_facts_count += len(facts)
 
         return new_facts_count

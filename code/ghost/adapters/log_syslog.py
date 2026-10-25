@@ -86,7 +86,11 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
         if not tr and kv.get("trace_id"):
             tr = kv["trace_id"]
 
-        res_id = kv.get("resource_id") or ""
+        ev = kv.get("event", "").lower()
+        if ev.endswith("_started") or ev.endswith("_start"):
+            continue
+
+        res_id = (kv.get("resource_id") or "").strip(' \t\n\r"\'\\')
         if not res_id:
             continue
 
@@ -114,6 +118,10 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
         rows = kv.get("rows")
         if http_status == "404" or rows == "0":
             state = State.ABSENT
+        elif (system_id == "analytics_platform" or category == "ANALYTICS_PROFILE") and not emails and not user_ids and not hashes:
+            state = State.ANONYMIZED
+        elif (system_id == "support_platform" or category in {"SUPPORT_MESSAGE", "ACCOUNT_TOMBSTONE"}) and not emails and not user_ids and not phones and not hashes:
+            state = State.REDACTED
         else:
             state = State.PRESENT
 

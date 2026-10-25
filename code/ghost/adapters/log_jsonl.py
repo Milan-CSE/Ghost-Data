@@ -70,13 +70,17 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
         except Exception:
             continue
 
-        res_id = data.get("resource_id") or ""
+        res_id = str(data.get("resource_id") or "").strip(' \t\n\r"\'\\')
         if not res_id:
             continue
 
         raw_sys = data.get("service") or data.get("logger") or ""
-        system_id = normalize_system_id(res_id, raw_sys)
         event = data.get("event", "")
+        ev_lower = event.lower()
+        if ev_lower.endswith("_started") or ev_lower.endswith("_start"):
+            continue
+
+        system_id = normalize_system_id(res_id, raw_sys)
         category = infer_category(res_id, system_id, event)
         tr = data.get("trace_id")
 
@@ -97,9 +101,15 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
 
         # State
         result = str(data.get("result", "")).lower()
-        http_status = data.get("http_status")
-        if http_status == 404 or result in {"miss", "not_found", "deleted"}:
+        http_status = str(data.get("http_status") or "")
+        rows = str(data.get("rows") if data.get("rows") is not None else "")
+        total_hits = str(data.get("total_hits") if data.get("total_hits") is not None else "")
+        if http_status == "404" or rows == "0" or total_hits == "0" or result in {"miss", "not_found", "deleted"}:
             state = State.ABSENT
+        elif (system_id == "analytics_platform" or category == "ANALYTICS_PROFILE") and not emails and not user_ids and not hashes:
+            state = State.ANONYMIZED
+        elif (system_id == "support_platform" or category in {"SUPPORT_MESSAGE", "ACCOUNT_TOMBSTONE"}) and not emails and not user_ids and not phones and not hashes:
+            state = State.REDACTED
         else:
             state = State.PRESENT
 

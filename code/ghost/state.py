@@ -88,6 +88,22 @@ class StateReconstructor:
                     is_unresolved=False,
                 )
 
+            # Redacted records (Tombstones and Support Conversations)
+            if owned.category in {"SUPPORT_MESSAGE", "ACCOUNT_TOMBSTONE"}:
+                st = (
+                    State.REDACTED
+                    if (not selected_fact.emails and not selected_fact.phones and not selected_fact.hashes)
+                    else State.PRESENT
+                )
+                return ResourceState(
+                    system_id=owned.system_id,
+                    resource_id=owned.resource_id,
+                    category=owned.category,
+                    state=st,
+                    evidence_id=selected_fact.file_id,
+                    is_unresolved=False,
+                )
+
             # Standard entity resolution
             return ResourceState(
                 system_id=owned.system_id,
@@ -102,24 +118,25 @@ class StateReconstructor:
         # Absence vs. Non-Coverage: Check if an authoritative covering snapshot exists
         covering_file_id = view.covering_snapshot(owned.system_id)
         if covering_file_id:
-            # Resource is verified ABSENT via omission from authoritative covering store
+            # Resource is verified ABSENT (or ANONYMIZED for analytics) via omission from authoritative covering store
+            st = State.ANONYMIZED if owned.category == "ANALYTICS_PROFILE" else State.ABSENT
             return ResourceState(
                 system_id=owned.system_id,
                 resource_id=owned.resource_id,
                 category=owned.category,
-                state=State.ABSENT,
+                state=st,
                 evidence_id=covering_file_id,
                 is_unresolved=False,
             )
 
         # 3. Patch P3 Fallback for Unresolved States:
         # If no covering store exists and no direct observation is available at cutoff,
-        # record uncertainty in review/unresolved.md and provide safe deterministic fallback
+        # record uncertainty in review/unresolved.md per Patch P3.
+        # Fallback uses last admissible observation; never invent absence.
         reason = f"No direct observation or covering snapshot found in admissible view for {owned.system_id}"
         _record_unresolved_entry(case_id, owned.system_id, owned.resource_id, reason)
 
-        # For process flows, default to DISABLED; for records, default to ABSENT
-        fallback_state = State.DISABLED if owned.category == "DATA_FLOW" else State.ABSENT
+        fallback_state = State.ACTIVE if owned.category in {"DATA_FLOW", "BACKUP_ARCHIVE"} else State.PRESENT
         return ResourceState(
             system_id=owned.system_id,
             resource_id=owned.resource_id,

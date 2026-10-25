@@ -8,7 +8,7 @@ import csv
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
-from ghost.types import Case, IdentityBag, OwnedResource, normalize_system_id, infer_category
+from ghost.types import Case, IdentityBag, OwnedResource, normalize_system_id, infer_category, VALID_SYSTEMS
 from ghost.ledger import View
 from ghost.config import SYSTEM_ACTIVITY_PATH
 
@@ -55,6 +55,8 @@ class OwnershipLinker:
             matching_facts = view.by_identifier(ident)
             for fact in matching_facts:
                 norm_sys = normalize_system_id(fact.resource_id, fact.system_id)
+                if norm_sys not in VALID_SYSTEMS:
+                    continue
                 category = fact.category or infer_category(fact.resource_id, norm_sys)
                 key = (norm_sys, fact.resource_id)
                 if key not in candidates:
@@ -70,7 +72,7 @@ class OwnershipLinker:
         for act in self._activities:
             if act.get("event_type") == "LINK_RESOURCE_IDENTITY":
                 event_time = act.get("event_time", "")
-                if event_time > audit_at:
+                if not (requested_at <= event_time <= audit_at):
                     continue
                 details = act.get("details", "")
                 # Check if any strong identifier (length > 3) is present in details
@@ -81,9 +83,11 @@ class OwnershipLinker:
                         break
                 if is_match:
                     raw_sys = act.get("target_system", "")
-                    res_id = act.get("resource_id", "")
+                    res_id = (act.get("resource_id", "")).strip(' \t\n\r"\'\\')
                     if res_id:
                         norm_sys = normalize_system_id(res_id, raw_sys)
+                        if norm_sys not in VALID_SYSTEMS:
+                            continue
                         category = infer_category(res_id, norm_sys)
                         key = (norm_sys, res_id)
                         act_id = act.get("activity_id", "")
@@ -107,42 +111,83 @@ class OwnershipLinker:
                                 corroborated_by=corrob,
                             )
 
-        # 3. Corroborating Activity Signals for Account Profile (Patch P6)
-        # When no account_service resource was grounded from evidence or relational links,
-        # inspect deletion_worker events within [reported_at - 15 min, reported_at + 15 min].
-        has_account = any(r.system_id == "account_service" for r in candidates.values())
-        if not has_account and reported_at:
-            try:
-                rep_dt = _parse_iso(reported_at)
-                w_start = rep_dt - timedelta(minutes=15)
-                w_end = rep_dt + timedelta(minutes=15)
-
-                account_acts = []
+        # 3. Corroborating Activity Signals (Patch P6)
+        # Activity alone must not establish primary ownership.
+        # Check system_activity for deletion_worker events strictly within [requested_at, reported_at].
+        if requested_at and reported_at:
+            for key, cand in list(candidates.items()):
+                corrobs = list(cand.corroborated_by)
                 for act in self._activities:
-                    if act.get("source_system") == "deletion_worker" and act.get("target_system") == "account_service":
+                    res_id = (act.get("resource_id", "")).strip(' \t\n\r"\'\\')
+                    if res_id == cand.resource_id:
                         event_time = act.get("event_time", "")
-                        if event_time > audit_at:
-                            continue
-                        act_dt = _parse_iso(event_time)
-                        if w_start <= act_dt <= w_end:
-                            account_acts.append(act)
+                        if requested_at <= event_time <= reported_at:
+                            act_id = act.get("activity_id", "")
+                            if act_id and act_id not in corrobs:
+                                corrobs.append(act_id)
+                if len(corrobs) > len(cand.corroborated_by):
+                    candidates[key] = OwnedResource(
+                        system_id=cand.system_id,
+                        resource_id=cand.resource_id,
+                        category=cand.category,
+                        signal=cand.signal,
+                        corroborated_by=tuple(corrobs),
+                    )
 
-                # Link if exactly one account was processed in this window
-                if len(account_acts) == 1:
-                    act = account_acts[0]
-                    res_id = act.get("resource_id", "")
-                    if res_id:
-                        key = ("account_service", res_id)
-                        act_id = act.get("activity_id", "")
-                        candidates[key] = OwnedResource(
-                            system_id="account_service",
-                            resource_id=res_id,
-                            category="USER_PROFILE",
-                            signal="activity_corroboration",
-                            corroborated_by=(act_id,) if act_id else (),
+        # 4. Refine resource category from deletion worker activity if available
+        for (sys_id, res_id), cand in list(candidates.items()):
+            worker_acts = [
+                a for a in self._activities
+                if (a.get("resource_id") or "").strip(' \t\n\r"\'\\') == res_id
+                and "deletion_worker" in a.get("source_system", "")
+                and a.get("event_time", "") <= audit_at
+            ]
+            if worker_acts:
+                ev_type = worker_acts[-1].get("event_type")
+                if sys_id == "support_platform":
+                    if ev_type == "DELETE_RECORD":
+                        candidates[(sys_id, res_id)] = OwnedResource(
+                            system_id=cand.system_id,
+                            resource_id=cand.resource_id,
+                            category="SUPPORT_ATTACHMENT",
+                            signal=cand.signal,
+                            corroborated_by=cand.corroborated_by,
                         )
-            except Exception:
-                pass
+                    elif ev_type == "REDACT_RECORD":
+                        candidates[(sys_id, res_id)] = OwnedResource(
+                            system_id=cand.system_id,
+                            resource_id=cand.resource_id,
+                            category="SUPPORT_MESSAGE",
+                            signal=cand.signal,
+                            corroborated_by=cand.corroborated_by,
+                        )
+                elif sys_id == "analytics_platform":
+                    if ev_type == "DELETE_RECORD":
+                        candidates[(sys_id, res_id)] = OwnedResource(
+                            system_id=cand.system_id,
+                            resource_id=cand.resource_id,
+                            category="MARKETING_PROFILE",
+                            signal=cand.signal,
+                            corroborated_by=cand.corroborated_by,
+                        )
+                    elif ev_type == "ANONYMIZE_RECORD":
+                        candidates[(sys_id, res_id)] = OwnedResource(
+                            system_id=cand.system_id,
+                            resource_id=cand.resource_id,
+                            category="ANALYTICS_PROFILE",
+                            signal=cand.signal,
+                            corroborated_by=cand.corroborated_by,
+                        )
+
+        # 5. Primary Account Profile Disambiguation:
+        # If multiple account_service resources were grounded, prefer the one with activity corroboration
+        account_keys = [k for k in candidates if k[0] == "account_service"]
+        if len(account_keys) > 1:
+            corrob_accs = [k for k in account_keys if candidates[k].corroborated_by]
+            if len(corrob_accs) == 1:
+                for k in account_keys:
+                    if k not in corrob_accs:
+                        del candidates[k]
 
         # Deterministic sorting: by system_id ascending, resource_id ascending
         sorted_resources = sorted(candidates.values(), key=lambda r: (r.system_id, r.resource_id))

@@ -82,24 +82,5 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
                     covers_system=False,
                 )
             )
-    else:
-        # Document itself as a resource
-        doc_res_id = path.stem
-        facts.append(
-            Fact(
-                file_id=file_id,
-                captured_at=captured_at,
-                system_id=system_id,
-                resource_id=doc_res_id,
-                category=category,
-                state=State.PRESENT,
-                emails=frozenset(emails),
-                hashes=frozenset(hashes),
-                user_ids=frozenset(user_ids),
-                phones=frozenset(),
-                store="document_pdf",
-                covers_system=False,
-            )
-        )
 
     return facts

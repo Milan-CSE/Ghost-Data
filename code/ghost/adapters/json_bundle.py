@@ -39,7 +39,7 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
         records = snap.get("records", [])
 
         for rec in records:
-            res_id = rec.get("resource_id") or ""
+            res_id = str(rec.get("resource_id") or "").strip(' \t\n\r"\'\\')
             if not res_id:
                 continue
 
@@ -74,6 +74,12 @@ def parse(path: Path | str, file_id: str, captured_at: str) -> list[Fact]:
             elif category == "ANALYTICS_PROFILE":
                 if not emails and not user_ids and not hashes:
                     state = State.ANONYMIZED
+                else:
+                    state = State.PRESENT
+
+            elif category in {"SUPPORT_MESSAGE", "EMAIL_DELIVERY_LOG"}:
+                if not emails and not hashes and not phones and not user_ids:
+                    state = State.REDACTED
                 else:
                     state = State.PRESENT
 

@@ -146,34 +146,107 @@ def test_ownership_relational_link(tmp_path):
     assert owned[0].corroborated_by == ("act_4001",)
 
 
-def test_ownership_account_activity_corroboration(tmp_path):
-    """Test corroborating account profile from deletion_worker when absent from evidence."""
+def test_ownership_activity_corroboration_within_intake_window(tmp_path):
+    """Patch P6: Test that deletion_worker activity within [requested_at, reported_at]
+
+    corroborates resources already identified in evidence, but events outside are excluded.
+    """
     act_file = tmp_path / "act.csv"
     act_file.write_text(
         "activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n"
-        "act_3342,2026-08-20T16:41:43Z,DELETE_RECORD,deletion_worker,account_service,account_001,SUCCESS,Target resource: account_001.\n"
-        "act_9999,2026-08-25T10:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_unrelated,SUCCESS,Target resource: account_unrelated.\n"
+        "act_within,2026-08-20T12:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_001,SUCCESS,Target: account_001\n"
+        "act_post_reported,2026-08-20T17:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_001,SUCCESS,Target: account_001\n"
     )
     linker = OwnershipLinker(act_file)
-    view = View(audit_at="2026-09-03T11:30:00Z", facts=[])
+    fact = Fact(
+        file_id="ev_01",
+        captured_at="2026-08-15T10:00:00Z",
+        system_id="account_service",
+        resource_id="account_001",
+        category="USER_PROFILE",
+        state=State.PRESENT,
+        emails=frozenset(["user@example.com"]),
+    )
+    view = View(audit_at="2026-09-03T11:30:00Z", facts=[fact])
     bag = IdentityBag(
         user_id="user_01",
-        active_at_audit={"email": "amina.elmasri@gmail.com"},
-        search_surface=frozenset(["amina.elmasri@gmail.com", "user_01"]),
+        active_at_audit={"email": "user@example.com"},
+        search_surface=frozenset(["user@example.com", "user_01"]),
     )
     case = Case(
         case_id="case_01",
-        email="amina.elmasri@gmail.com",
+        email="user@example.com",
         requested_at="2026-08-18T09:14:00Z",
         reported_status="COMPLETE",
-        reported_at="2026-08-20T16:42:00Z",  # event 17s prior
+        reported_at="2026-08-20T16:42:00Z",
         audit_at="2026-09-03T11:30:00Z",
         request_text="Close account",
     )
 
     owned = linker.link(case, bag, view)
     assert len(owned) == 1
-    assert owned[0].system_id == "account_service"
     assert owned[0].resource_id == "account_001"
-    assert owned[0].signal == "activity_corroboration"
-    assert owned[0].corroborated_by == ("act_3342",)
+    assert owned[0].corroborated_by == ("act_within",)
+    assert "act_post_reported" not in owned[0].corroborated_by
+
+
+def test_ownership_activity_alone_does_not_establish_primary_ownership(tmp_path):
+    """Patch P6: Unbacked activity with no grounded evidence or relational catalog link
+
+    must never create or establish an owned resource.
+    """
+    act_file = tmp_path / "act.csv"
+    act_file.write_text(
+        "activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n"
+        "act_unbacked,2026-08-20T12:00:00Z,DELETE_RECORD,deletion_worker,account_service,account_ungrounded,SUCCESS,Target: account_ungrounded\n"
+    )
+    linker = OwnershipLinker(act_file)
+    view = View(audit_at="2026-09-03T11:30:00Z", facts=[])  # No grounded evidence facts
+    bag = IdentityBag(
+        user_id="user_01",
+        active_at_audit={"email": "user@example.com"},
+        search_surface=frozenset(["user@example.com", "user_01"]),
+    )
+    case = Case(
+        case_id="case_01",
+        email="user@example.com",
+        requested_at="2026-08-18T09:14:00Z",
+        reported_status="COMPLETE",
+        reported_at="2026-08-20T16:42:00Z",
+        audit_at="2026-09-03T11:30:00Z",
+        request_text="Close account",
+    )
+
+    owned = linker.link(case, bag, view)
+    # Activity alone must not establish ownership
+    assert len(owned) == 0
+
+
+def test_ownership_preserves_legitimate_shared_resources(tmp_path):
+    """Test that legitimate shared resources (e.g. shared support message) are preserved across subjects."""
+    empty_act = tmp_path / "act.csv"
+    empty_act.write_text("activity_id,event_time,event_type,source_system,target_system,resource_id,reported_result,details\n")
+    linker = OwnershipLinker(empty_act)
+
+    shared_fact = Fact(
+        file_id="ev_shared",
+        captured_at="2026-08-15T10:00:00Z",
+        system_id="support_platform",
+        resource_id="support_shared_thread",
+        category="SUPPORT_MESSAGE",
+        state=State.PRESENT,
+        emails=frozenset(["userA@example.com", "userB@example.com"]),
+    )
+    view = View(audit_at="2026-09-03T11:30:00Z", facts=[shared_fact])
+
+    bag_a = IdentityBag(user_id="user_A", active_at_audit={"email": "userA@example.com"}, search_surface=frozenset(["userA@example.com", "user_A"]))
+    bag_b = IdentityBag(user_id="user_B", active_at_audit={"email": "userB@example.com"}, search_surface=frozenset(["userB@example.com", "user_B"]))
+
+    case_a = Case("case_A", "userA@example.com", "2026-08-18T09:00:00Z", "COMPLETE", "2026-08-20T09:00:00Z", "2026-09-03T11:30:00Z", "text")
+    case_b = Case("case_B", "userB@example.com", "2026-08-19T09:00:00Z", "COMPLETE", "2026-08-21T09:00:00Z", "2026-09-03T11:30:00Z", "text")
+
+    owned_a = linker.link(case_a, bag_a, view)
+    owned_b = linker.link(case_b, bag_b, view)
+
+    assert any(r.resource_id == "support_shared_thread" for r in owned_a)
+    assert any(r.resource_id == "support_shared_thread" for r in owned_b)

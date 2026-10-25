@@ -41,6 +41,20 @@ class Fact:
     phones: frozenset[str] = field(default_factory=frozenset)
     store: str = ""  # e.g. "primary", "failover_replica", "bundle"
     covers_system: bool = False  # True only for authoritative full-table/bundle observations
+    file_captured_at: str = ""  # Manifest captured_at of the evidence file
+
+
+VALID_SYSTEMS: frozenset[str] = frozenset({
+    "account_service",
+    "analytics_platform",
+    "backup_service",
+    "export_service",
+    "identity_service",
+    "integration_service",
+    "search_service",
+    "security_service",
+    "support_platform",
+})
 
 
 @dataclass(frozen=True)
@@ -72,7 +86,7 @@ class ResourceState:
 
 def normalize_system_id(resource_id: str, system_hint: str = "") -> str:
     """Deterministically map resource_id and system_hint to authoritative system_id."""
-    res = resource_id.strip() if resource_id else ""
+    res = resource_id.strip(' \t\n\r"\'\\').lower() if resource_id else ""
     if res.startswith("account_"):
         return "account_service"
     if res.startswith("search_"):
@@ -130,7 +144,7 @@ def normalize_system_id(resource_id: str, system_hint: str = "") -> str:
 def infer_category(resource_id: str, system_id: str = "", collection_hint: str = "") -> str:
     """Infer the data category from collection/schema hints, resource prefix, or system_id."""
     hint = (collection_hint or "").strip().lower()
-    res = (resource_id or "").strip().lower()
+    res = (resource_id or "").strip(' \t\n\r"\'\\').lower()
 
     if "ticket_attachment" in hint or "attachment" in hint or "attachment" in res:
         return "SUPPORT_ATTACHMENT"
@@ -224,7 +238,9 @@ def extract_identifiers_from_obj(obj: Any) -> tuple[set[str], set[str], set[str]
                 if not v_str or v_str.lower() == "null":
                     continue
 
-                if "email_hash" in k_lower and hex_re.match(v_str):
+                if ("email_hash" in k_lower or "correlation" in k_lower or "hash" in k_lower or "key" in k_lower) and hex_re.match(v_str):
+                    hashes.add(v_str.lower())
+                elif hex_re.match(v_str):
                     hashes.add(v_str.lower())
                 elif any(x in k_lower for x in ["email", "selector", "uploaded_by"]):
                     for em in email_re.findall(v_str):

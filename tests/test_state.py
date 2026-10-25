@@ -131,19 +131,62 @@ def test_state_process_predicates():
     assert backup_res.state == State.BLOCKED
 
 
-def test_state_unresolved_fallback(tmp_path, monkeypatch):
-    """Test Patch P3 fallback and review/unresolved.md logging when state is completely ungrounded."""
-    monkeypatch.chdir(tmp_path)
-    view = View(audit_at="2026-09-15T12:00:00Z", facts=[])  # Empty view, no covering store
-    owned = OwnedResource("custom_service", "res_mystery", "USER_PROFILE", "speculative")
-    case = Case("case_mystery", "test@example.com", "2026-09-10T10:00:00Z", "COMPLETE", "2026-09-11T10:00:00Z", "2026-09-15T12:00:00Z", "text")
+def test_p3_last_admissible_observation_preserved():
+    """P3 Case 1: When a resource has an earlier admissible observation and no newer observation,
+
+    preserve the last admissible observation as the fallback.
+    """
+    cutoff = "2026-09-15T12:00:00Z"
+    facts = [
+        Fact(
+            file_id="ev_earlier_obs",
+            captured_at="2026-08-15T10:00:00Z",  # Earlier observation, well before cutoff
+            system_id="support_platform",
+            resource_id="support_shared_conv",
+            category="SUPPORT_MESSAGE",
+            state=State.PRESENT,
+            emails=frozenset(["user@example.com"]),
+        )
+    ]
+    view = View(audit_at=cutoff, facts=facts)
+    owned = OwnedResource("support_platform", "support_shared_conv", "SUPPORT_MESSAGE", "identifier")
+    case = Case("case_p3_1", "user@example.com", "2026-08-10T10:00:00Z", "COMPLETE", "2026-08-20T10:00:00Z", cutoff, "text")
 
     recon = StateReconstructor()
     res_state = recon.reconstruct(owned, view, case)
 
-    assert res_state.is_unresolved is True
-    assert res_state.state == State.ABSENT  # Safe fallback
-    assert (tmp_path / "review" / "unresolved.md").exists()
-    content = (tmp_path / "review" / "unresolved.md").read_text(encoding="utf-8")
-    assert "case_mystery" in content
-    assert "res_mystery" in content
+    assert res_state.state == State.PRESENT
+    assert res_state.evidence_id == "ev_earlier_obs"
+    assert res_state.is_unresolved is False
+
+
+def test_p3_no_admissible_observation_deterministic_fallback(tmp_path, monkeypatch):
+    """P3 Case 2: When a resource has no admissible observation (and no covering store),
+
+    do not infer absence; use plan-permitted deterministic fallback, record in review/unresolved.md.
+    """
+    monkeypatch.chdir(tmp_path)
+    view = View(audit_at="2026-09-15T12:00:00Z", facts=[])  # Empty view, no covering store
+    owned_rec = OwnedResource("custom_service", "res_unobserved_record", "USER_PROFILE", "identifier")
+    owned_flow = OwnedResource("integration_service", "flow_unobserved", "DATA_FLOW", "relational")
+    case = Case("case_p3_2", "user@example.com", "2026-09-10T10:00:00Z", "COMPLETE", "2026-09-11T10:00:00Z", "2026-09-15T12:00:00Z", "text")
+
+    recon = StateReconstructor()
+    st_rec = recon.reconstruct(owned_rec, view, case)
+    st_flow = recon.reconstruct(owned_flow, view, case)
+
+    # Never infer absence: records default to PRESENT, flows/backups default to ACTIVE
+    assert st_rec.state == State.PRESENT
+    assert st_rec.is_unresolved is True
+    assert st_rec.evidence_id == ""
+
+    assert st_flow.state == State.ACTIVE
+    assert st_flow.is_unresolved is True
+    assert st_flow.evidence_id == ""
+
+    # Must log uncertainty to review/unresolved.md
+    log_file = tmp_path / "review" / "unresolved.md"
+    assert log_file.exists()
+    content = log_file.read_text(encoding="utf-8")
+    assert "res_unobserved_record" in content
+    assert "flow_unobserved" in content
