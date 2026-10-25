@@ -791,3 +791,56 @@ branch=main
 repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
 worktree=main
 parent_agent=none
+## [2026-10-25T10:38:28+05:30] Checkpoint commit and targeted evidence gate
+
+User Prompt (verbatim, secrets redacted):
+Continue the existing canonical optimization pass. The latest validated improvement increased exact-match from 11/32 to 12/32. Precision remains 100%, recall is 86.01%, F1 is 92.48%, and 96 tests pass.
+
+### Part 1 — Secure the current checkpoint
+
+- Inspect `git status --short`, `git diff --stat`, and the actual diffs.
+- Review the new `source_resource_id` ownership behavior and its regression tests.
+- Verify that the changes preserve P3, P6, temporal cutoff rules, and shared-resource behavior.
+- Commit only the intentional implementation, regression tests, decision documentation, and log changes associated with this fix.
+- Preserve all untracked `runs/` telemetry and other user files. Do not use destructive cleanup.
+
+### Part 2 — Targeted evidence investigation
+
+Investigate remaining ownership gaps without restarting the broad diagnosis.
+
+Search existing parsed facts and participant-facing evidence for additional explicit relationships supported by the actual schemas, including `source_resource_id`, `subject_reference`, `customer_reference`, foreign keys, and uniquely correlated lookup traces.
+
+Specifically reconcile these discrepancies:
+
+- `case_04` / `account_004`
+- `case_18` / `audit_record_6645`
+- `case_20` / `audit_record_5569`
+
+Inspect the actual evidence files, screenshot extractions, timestamps, and provenance. Earlier reports disagree on whether some of these resources are present in the screenshots.
+
+Do not use canonical output as runtime evidence. Activity timing alone must not establish ownership. Preserve the exact P6 window `[requested_at, reported_at]`.
+
+### Part 3 — Decision gate
+
+Before adding any new ownership logic, establish whether a new generalizable relationship is actually supported by evidence.
+
+If a valid relationship is found, implement the smallest generic correction, add regression tests, and measure the canonical benchmark. If no independent relationship exists, document that limitation instead of forcing a link.
+
+Return the findings, commit hash, Git status, and the measured benchmark. Keep Step 8 on hold. Do not begin final packaging.
+
+Agent Response Summary:
+Inspected the staged checkpoint diffs, committed only the seven intended tracked implementation, test, decision, and log files as `d6eade4`, and left untracked telemetry untouched. Rechecked P3, P6, cutoff, and shared-resource regressions. Inspected actual screenshots and cached extractions, account snapshot rows/schema, relevant lookup traces, and structured evidence; no additional independent ownership relationship was found. Added D-22 documenting the evidence provenance and unresolved targets; no new ownership logic was added.
+
+Actions:
+* Ran 11 focused tests for P3 fallback, temporal cutoffs, P6 corroboration, source-resource ownership, and shared-resource behavior (all passed).
+* Ran canonical scorer: 12/32 exact, 100% precision, 86.01% recall, 92.48% F1; 20 ownership/identity errors and zero other error categories.
+* Inspected `evidence_04`, `evidence_37`, cached image extractions, `evidence_54`, `evidence_92`, and `evidence_94`; documented the findings in `code/docs/DECISIONS.md` D-22.
+* Preserved all `runs/` telemetry; Step 8 and packaging remain on hold.
+
+Context:
+tool=Codex desktop
+model=GPT-6
+branch=main
+repo_root=D:\hackerrank_plan_implemenation\hackerrank-orchestrate-october26_
+worktree=main
+parent_agent=none
